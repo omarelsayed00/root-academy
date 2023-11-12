@@ -17,7 +17,7 @@ import Navbar from "@components/Navbar/navbar";
 import { MainTitle } from "@layout/styles";
 import HOfficeIcon from "@icons/HOffice";
 
-const Header2 = (props: any) => {
+const Header2: React.FC = (props: any) => {
   const router = useRouter();
   const [openPopup, setOpenPopup] = useState<boolean>(false);
 
