@@ -17,7 +17,7 @@ import Navbar from "@components/Navbar/navbar";
 import { MainTitle } from "@layout/styles";
 import HOfficeIcon from "@icons/HOffice";
 
-const Header2: React.FC = (props: any) => {
+const Header2 = (title: any) => {
   const router = useRouter();
   const [openPopup, setOpenPopup] = useState<boolean>(false);
 
@@ -37,7 +37,7 @@ const Header2: React.FC = (props: any) => {
         alt=""
         onClick={() => setOpenPopup(true)}
       />
-      <h1>{props.title}</h1>
+      <h1>{title}</h1>
 
       <Image src="/images/logo.svg" width={60} height={60} alt="" />
       {openPopup && (
