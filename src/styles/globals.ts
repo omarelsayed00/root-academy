@@ -129,8 +129,61 @@ input[type=number] {
 }
 
 
+.loading {
+  position: absolute;
+  width: 80px; /* Adjust the size as needed */
+  height: 90px; /* Adjust the size as needed */
+  background-image: url("/loading.svg");
+  background-size: 80px;
+  animation: breathe 2s infinite ease-in-out;
+  right: "50%";
+  top: "50%"
+ 
+    }
 
-  `;
+
+    @keyframes breathe {
+  0% {
+    transform: scale(1); /* Initial scale */
+    opacity: 0.8; /* Initial opacity */
+  }
+  50% {
+    transform: scale(1.3); /* Slightly larger scale */
+    opacity: 1; /* Maximum opacity */
+  }
+  100% {
+    transform: scale(1); /* Back to the initial scale */
+    opacity: 0.8; /* Back to the initial opacity */
+  }
+}
+
+@keyframes breathing {
+  0% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  25% {
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    transform: scale(1);
+  }
+
+  60% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+
+  100% {
+    -webkit-transform: scale(0.9);
+    -ms-transform: scale(0.9);
+    transform: scale(0.9);
+  }
+}
+
+`;
 
 export const Container = styled.div`
   width: 100%;

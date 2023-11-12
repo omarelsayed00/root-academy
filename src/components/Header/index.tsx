@@ -17,7 +17,12 @@ import Navbar from "@components/Navbar/navbar";
 import { MainTitle } from "@layout/styles";
 import HOfficeIcon from "@icons/HOffice";
 
-const Header2 = (title: any) => {
+interface MyComponentProps {
+  // Define the props and their types
+  title: string;
+}
+
+const Header2: React.FC<MyComponentProps> = ({ title }) => {
   const router = useRouter();
   const [openPopup, setOpenPopup] = useState<boolean>(false);
 

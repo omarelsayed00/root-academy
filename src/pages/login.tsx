@@ -27,6 +27,7 @@ import Cookies from "js-cookie";
 import { ResetButton } from "@styles/loginByPhone";
 import Icon from "@components/Icon";
 import LoginIcon from "@icons/LoginLogo";
+import { Backdrop } from "@mui/material";
 
 const Login = () => {
   const formik = useFormik({
@@ -58,6 +59,9 @@ const Login = () => {
 
   const { setUser, user, setCurrentUserId, currentUserId, setLoginPhone }: any =
     useContext(AuthContext);
+
+  const { BASE_URL } = process.env;
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = () => {
     router.push("/");
@@ -187,6 +191,13 @@ const Login = () => {
           />
         </LeftContainer>
       </LoginContainer>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </div>
   );
 };
