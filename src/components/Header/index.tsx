@@ -33,24 +33,26 @@ const Header2: React.FC<MyComponentProps> = ({ title }) => {
   };
 
   return (
-    <HeaderContainer>
-      <Image
-        style={{ cursor: "pointer" }}
-        src="/images/navbar.svg"
-        width={46 * 0.6}
-        height={33}
-        alt=""
-        onClick={() => setOpenPopup(true)}
-      />
-      <h1>{title}</h1>
+    <>
+      <HeaderContainer>
+        <Image
+          style={{ cursor: "pointer" }}
+          src="/images/navbar.svg"
+          width={46 * 0.6}
+          height={33}
+          alt=""
+          onClick={() => setOpenPopup(true)}
+        />
+        <h1>{title}</h1>
 
-      <Image src="/images/logo.svg" width={60} height={60} alt="" />
-      {openPopup && (
-        <NavbarModal onClose={() => setOpenPopup(false)}>
-          <Navbar onClose={() => setOpenPopup(false)} />
-        </NavbarModal>
-      )}
-    </HeaderContainer>
+        <Image src="/images/logo.svg" width={60} height={60} alt="" />
+        {openPopup && (
+          <NavbarModal onClose={() => setOpenPopup(false)}>
+            <Navbar onClose={() => setOpenPopup(false)} />
+          </NavbarModal>
+        )}
+      </HeaderContainer>
+    </>
   );
 };
 

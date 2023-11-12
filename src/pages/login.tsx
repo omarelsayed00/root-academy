@@ -18,7 +18,7 @@ import * as Yup from "yup";
 import Link from "next/link";
 import Modal from "@components/Modal";
 import ForgetPassModal from "@components/Modal/ForgetPassModal";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { Navigate, useNavigate } from "react-router-dom";
 import Head from "next/head";
 import { useRouter } from "next/router";
