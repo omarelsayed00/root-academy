@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import { Container } from "@styles/globals";
 import Image from "next/image";
-import React, { useState, useContext, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import Noty from "./Noty";
 //import Notifications from "react-notifications-menu";
 import "./styles";
@@ -14,15 +15,9 @@ import Icon from "@components/Icon";
 import Link from "next/link";
 import NavbarModal from "@components/Navbar";
 import Navbar from "@components/Navbar/navbar";
-import { MainTitle } from "@layout/styles";
-import HOfficeIcon from "@icons/HOffice";
+import * as React from "react";
 
-interface MyComponentProps {
-  // Define the props and their types
-  title: string;
-}
-
-const Header2: React.FC<MyComponentProps> = ({ title }) => {
+const Header2 = (props: any) => {
   const router = useRouter();
   const [openPopup, setOpenPopup] = useState<boolean>(false);
 
@@ -33,26 +28,24 @@ const Header2: React.FC<MyComponentProps> = ({ title }) => {
   };
 
   return (
-    <>
-      <HeaderContainer>
-        <Image
-          style={{ cursor: "pointer" }}
-          src="/images/navbar.svg"
-          width={46 * 0.6}
-          height={33}
-          alt=""
-          onClick={() => setOpenPopup(true)}
-        />
-        <h1>{title}</h1>
+    <HeaderContainer>
+      <Image
+        style={{ cursor: "pointer" }}
+        src="/images/navbar.svg"
+        width={46 * 0.6}
+        height={33}
+        alt=""
+        onClick={() => setOpenPopup(true)}
+      />
+      <h1>{props.title}</h1>
 
-        <Image src="/images/logo.svg" width={60} height={60} alt="" />
-        {openPopup && (
-          <NavbarModal onClose={() => setOpenPopup(false)}>
-            <Navbar onClose={() => setOpenPopup(false)} />
-          </NavbarModal>
-        )}
-      </HeaderContainer>
-    </>
+      <Image src="/images/logo.svg" width={60} height={60} alt="" />
+      {openPopup && (
+        <NavbarModal onClose={() => setOpenPopup(false)}>
+          <Navbar onClose={() => setOpenPopup(false)} />
+        </NavbarModal>
+      )}
+    </HeaderContainer>
   );
 };
 
