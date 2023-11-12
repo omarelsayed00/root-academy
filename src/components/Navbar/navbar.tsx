@@ -28,8 +28,7 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
   const isActiveLink = (route: string) => router.pathname.includes(`${route}`);
 
   const logout = () => {
-    Cookies.remove("loggedin");
-    Cookies.remove("isAdmin");
+    Cookies.remove("loggedIn");
     localStorage.removeItem("accesToken");
     router.push("/login");
     props.onClose();

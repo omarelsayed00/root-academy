@@ -11,6 +11,6 @@ module.exports = nextConfig;
 
 module.exports = {
   env: {
-    BASE_URL: "http://51.20.18.129:8000",
+    BASE_URL: "http://16.16.201.47/api",
   },
 };

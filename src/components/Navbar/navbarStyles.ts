@@ -62,6 +62,7 @@ export const NavLink = styled.a<{ active: boolean }>`
   padding: 14px 0px;
   cursor: pointer;
   border-bottom: 2px solid #ffffff;
+  padding-right: 6px;
   ${({ active }) =>
     active
       ? css`

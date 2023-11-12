@@ -132,7 +132,7 @@ input[type=number] {
 .loading {
   position: absolute;
   width: 80px; /* Adjust the size as needed */
-  height: 90px; /* Adjust the size as needed */
+  height: 80px; /* Adjust the size as needed */
   background-image: url("/loading.svg");
   background-size: 80px;
   animation: breathe 2s infinite ease-in-out;
