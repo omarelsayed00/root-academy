@@ -25,13 +25,7 @@ import AuthContext from "src/context/AuthContext";
 import jwt_decode from "jwt-decode";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import Image from "next/image";
-import Circular from "@components/Chart/Circular";
-import Circular2 from "@components/Chart/Circular2";
-import MenuListComposition from "./edit";
 import HalfCircleLinearProgress2 from "@components/Chart/SemiCircle2";
-import HalfCircleLinearProgress3 from "@components/Chart/SemiCircle3";
-import HalfCircleLinearProgress4 from "@components/Chart/SemiCircle4";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
@@ -40,36 +34,123 @@ import Icon from "@components/Icon";
 import RatingIcon from "@icons/Rating";
 import Modal from "@components/Modal";
 import MovePlayer from "@components/Modal/Move Player";
+import { Backdrop } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  Details,
+  ImageCard,
+  Position,
+  StatsCard,
+} from "@containers/New Player/styles";
 
 const Profile = () => {
   const router = useRouter();
   const [openPopup, setOpenPopup] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [players, setPlayers] = useState([]);
+  const [player, setPlayer] = useState<any>();
 
-  const [name, setName] = useState("محمد مصطفى أحمد مسعود");
-  const [team, setTeam] = useState("فريق اكاديمية رووت - الفريق الاول");
+  const [name, setName] = useState("");
+  const [team, setTeam] = useState("");
   const [birthDate, setBirthDate] = useState("23/11/2004  - 19سنة");
-  const [weight, setWeight] = useState("77 ك");
-  const [height, setHeight] = useState("180 سم");
-  const [level, setLevel] = useState("محترف");
-
-  const [playerRating, setPlayerRating] = useState("4.5");
-
-  const [strenght, setStrength] = useState(85);
-  const [attack, setAttack] = useState(99);
-  const [defense, setDefense] = useState(44);
-  const [skills, setSkills] = useState(88);
+  const [weight, setWeight] = useState("");
+  const [height, setHeight] = useState("");
+  const [level, setLevel] = useState("");
+  const [image, setImage] = useState("");
+  const [playerRating, setPlayerRating] = useState("0");
+  const [strength, setStrength] = useState<any>(0);
+  const [attack, setAttack] = useState<any>(0);
+  const [defense, setDefense] = useState<any>(0);
+  const [skills, setSkills] = useState<any>(0);
+  const [averageStrength, setAverageStrength] = useState(0);
+  const [nickname, setNickname] = useState("");
+  const [position, setPositon] = useState("");
 
   const [editable1, setEditable1] = useState(false);
   const [editable2, setEditable2] = useState(false);
   const [editable3, setEditable3] = useState(false);
+  const { BASE_URL } = process.env;
+  const { id } = router.query;
+  const [isLoading, setIsLoading] = useState(false);
 
-  const [deletedId, setDeletedId] = useState(0);
+  useEffect(() => {
+    fetchPlayer();
+  }, []);
+
+  const fetchPlayer = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/players/${id}`, config)
+      .then((response) => {
+        console.log(response.data);
+        const data = response.data.data;
+        setPlayer(response.data.data);
+        setName(data.name);
+        setTeam(data.team);
+        setBirthDate(data.date_of_birth);
+        setWeight(data.weight);
+        setHeight(data.length);
+        setLevel(data.level);
+        setStrength(data.physical);
+        setAttack(data.attack);
+        setDefense(data.defense);
+        setSkills(data.dribble);
+        setPlayerRating(data.playerRating);
+        setPlayerRating(data.stars);
+        setImage(data.profile_image);
+        setPositon(data.position);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
+  const editPlayer = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "put");
+    formData.append("name", name);
+    formData.append("team", team);
+    //formData.append("birthDate", birthDate);
+    formData.append("weight", weight);
+    formData.append("length", height);
+    formData.append("level", level);
+    formData.append("image", image);
+    formData.append("playerRating", playerRating);
+    formData.append("physical", strength);
+    formData.append("attack", attack);
+    formData.append("defense", defense);
+    formData.append("dribble", skills);
+    formData.append("position", position);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/players/${id}`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchPlayer();
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+    setEditable1(false);
+    setEditable2(false);
+    setEditable3(false);
+  };
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
-    //setDeletedId(id);
   };
 
   const handleCloseDialog = () => {
@@ -81,25 +162,8 @@ const Profile = () => {
   };
 
   const deleteUser = () => {
-    /*     setMembers((members: any) =>
-      members.filter((member: any) => {
-        return member.id !== deletedId;
-      })
-    ); */
     setOpenDialog(false);
     router.push("/players");
-  };
-
-  const editDetails = () => {
-    setEditable1(false);
-  };
-
-  const editRating = () => {
-    setEditable2(false);
-  };
-
-  const editStats = () => {
-    setEditable3(false);
   };
 
   return (
@@ -114,7 +178,7 @@ const Profile = () => {
               </Icon>
             </button>
           ) : (
-            <Button3 onClick={editDetails}>حفظ</Button3>
+            <Button3 onClick={editPlayer}>حفظ</Button3>
           )}
         </Title>
         <h2></h2>
@@ -126,11 +190,25 @@ const Profile = () => {
             onChange={(e) => setName(e.target.value)}
             readOnly={!editable1}
           />
+          <h1>اللقب</h1>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            readOnly={!editable1}
+          />
           <h1>الفريق</h1>
           <input
             type="text"
             value={team}
             onChange={(e) => setTeam(e.target.value)}
+            readOnly={!editable1}
+          />
+          <h1>المركز</h1>
+          <input
+            type="text"
+            value={position}
+            onChange={(e) => setPositon(e.target.value)}
             readOnly={!editable1}
           />
           <h1>تاريخ الميلاد</h1>
@@ -184,10 +262,31 @@ const Profile = () => {
               </Icon>
             </button>
           ) : (
-            <Button4 onClick={editRating}>حفظ</Button4>
+            <Button4 onClick={editPlayer}>حفظ</Button4>
           )}
         </Rating>
-        <img src="/images/playerCard.png" alt="" />
+        <Card>
+          <CardContent>
+            <CardHeader>
+              <ImageCard>{image && <img src={image} alt="" />}</ImageCard>
+              <Position>
+                <h1>
+                  {Math.round((strength + attack + defense + skills) / 4)}
+                </h1>
+                <h2>{position ? position : ""}</h2>
+              </Position>
+            </CardHeader>
+            <Details>
+              <h1> {name}</h1>
+              <StatsCard>
+                {" "}
+                <p>{skills ? skills : ""} DRI</p>
+                <p>{defense ? defense : ""} DEF</p>
+                <p>{attack ? attack : ""} ATT</p>
+              </StatsCard>
+            </Details>
+          </CardContent>
+        </Card>
         <Actions>
           <Button onClick={() => setOpenPopup(true)}>نقل اللاعب</Button>
           <Button2 onClick={removeUser}>حذف اللاعب</Button2>
@@ -195,7 +294,10 @@ const Profile = () => {
       </Main>
       <Column2>
         <HalfCircle>
-          <HalfCircleLinearProgress2 progress={66} height={70} />
+          <HalfCircleLinearProgress2
+            progress={Math.round((strength + attack + defense + skills) / 4)}
+            height={70}
+          />
           <h1>متوسط القوة</h1>
         </HalfCircle>
         <Column2Container>
@@ -208,7 +310,7 @@ const Profile = () => {
                 </Icon>
               </button>
             ) : (
-              <Button3 onClick={editStats}>حفظ</Button3>
+              <Button3 onClick={editPlayer}>حفظ</Button3>
             )}
           </Title>
           <h2></h2>
@@ -218,12 +320,12 @@ const Profile = () => {
                 <h3>القوة البدنية</h3>
                 <input
                   type="number"
-                  value={strenght}
+                  value={strength}
                   onChange={(e) => setStrength(parseInt(e.target.value))}
                   readOnly={!editable3}
                 />
               </Info2>
-              <ProgressBar percent={strenght ? strenght : 0}>
+              <ProgressBar percent={strength ? strength : 0}>
                 <div></div>
               </ProgressBar>
             </Item>
@@ -293,17 +395,13 @@ const Profile = () => {
         </DialogActions>
       </Dialog>
 
-      {openPopup && (
-        <Modal onClose={() => setOpenPopup(false)}>
-          <MovePlayer
-            onClose={() => setOpenPopup(false)}
-            movedId={1}
-            team={"الفريق الأول"}
-            players={players}
-            setPlayers={setPlayers}
-          />
-        </Modal>
-      )}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };

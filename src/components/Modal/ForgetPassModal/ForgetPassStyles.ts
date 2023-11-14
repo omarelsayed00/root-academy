@@ -11,9 +11,11 @@ export const FormContent = styled.div`
 
   //margin-bottom: 32px;
   h3 {
-    font-weight: 275;
+    width: 100%;
+    font-weight: 600;
     font-size: 16px;
     line-height: 19px;
+    text-align: right;
   }
   p {
     font-weight: 275;
@@ -32,11 +34,12 @@ export const ControlField = styled.div`
   display: flex;
   justify-content: space-around;
   align-items: center;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
   gap: 22px;
   label {
     color: red;
-    font-weight: 400;
+    font-weight: 600;
+    line-height: 18px;
   }
 `;
 
@@ -79,4 +82,23 @@ export const Actions = styled.div`
   display: flex;
   align-items: center;
   padding-right: 210px;
+`;
+
+export const Button = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background-color: var(--primary-color);
+  padding: 10px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  min-width: 120px;
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.8;
+  }
 `;

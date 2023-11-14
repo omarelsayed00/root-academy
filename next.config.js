@@ -5,6 +5,9 @@ const nextConfig = {
   /*   experimental: {
     appDir: true,
   }, */
+  devIndicators: {
+    buildActivity: false,
+  },
 };
 
 module.exports = nextConfig;

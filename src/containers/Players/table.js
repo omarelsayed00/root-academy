@@ -22,6 +22,8 @@ import Rating from "@components/Rating";
 import { Router } from "react-router-dom";
 import { useRouter } from "next/router";
 import MovePlayer from "@components/Modal/Move Player";
+import { Backdrop } from "@mui/material";
+import axios from "axios";
 
 const SelectTableComponent = (props) => {
   //const [List, setList] = useState(props.table);
@@ -31,13 +33,14 @@ const SelectTableComponent = (props) => {
   const [deletedId, setDeletedId] = useState(0);
   const [movedId, setMovedId] = useState(0);
   const [movedTeam, setMovedTeam] = useState("");
-
   const [MasterChecked, setMasterChecked] = useState(false);
   const [SelectedList, setSelectedList] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { BASE_URL } = process.env;
 
   const router = useRouter();
 
-  const deleteUsers = () => {
+  const deletePlayers = () => {
     props.setUsers(
       props.users.filter(
         (x) => !SelectedList.filter((y) => y.id === x.id).length
@@ -46,12 +49,23 @@ const SelectTableComponent = (props) => {
     setOpenDialog(false);
   };
 
-  const deleteUser = () => {
-    props.setUsers((users) =>
-      users.filter((user) => {
-        return user.id !== deletedId;
+  const deletePlayer = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .delete(`${BASE_URL}/admins/players/${deletedId}`, config)
+      .then((response) => {
+        console.log(response.data);
+        props.fetchPlayers();
       })
-    );
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
     setOpenDialog2(false);
   };
 
@@ -172,13 +186,13 @@ const SelectTableComponent = (props) => {
                     </Name>
                   </Row>
                 </td>
-                <td>LW</td>
+                <td>{user.position}</td>
                 <td>{user.team}</td>
 
                 <td>
-                  <Rating rating={4} />
+                  <Rating rating={user.stars} />
                 </td>
-                <td>محترف</td>
+                <td>{user.level}</td>
 
                 <td>
                   <Actions>
@@ -225,7 +239,7 @@ const SelectTableComponent = (props) => {
         </DialogTitle>
 
         <DialogActions style={dialogStyles}>
-          <Button onClick={deleteUsers}>تأكيد</Button>
+          <Button onClick={deletePlayers}>تأكيد</Button>
           <Button2 onClick={handleCloseDialog} autoFocus>
             رجوع
           </Button2>
@@ -245,7 +259,7 @@ const SelectTableComponent = (props) => {
         </DialogTitle>
 
         <DialogActions style={dialogStyles2}>
-          <Button onClick={deleteUser}>تأكيد</Button>
+          <Button onClick={deletePlayer}>تأكيد</Button>
           <Button2 onClick={handleCloseDialog2} autoFocus>
             رجوع
           </Button2>
@@ -263,6 +277,13 @@ const SelectTableComponent = (props) => {
           />
         </Modal>
       )}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };

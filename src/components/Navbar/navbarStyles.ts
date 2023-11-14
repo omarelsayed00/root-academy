@@ -127,3 +127,43 @@ export const Button = styled.button`
     font-weight: 600;
   }
 `;
+
+export const Button3 = styled.button`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 16px;
+  color: white;
+  font-weight: 100;
+  padding: 6px 10px;
+  background-color: #4bad60;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  min-width: 100px;
+
+  :hover {
+    opacity: 0.85;
+  }
+`;
+
+export const Button2 = styled.button`
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 16px;
+  color: white;
+  font-weight: 100;
+  padding: 6px 10px;
+  background-color: #db1515;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  min-width: 100px;
+
+  :hover {
+    opacity: 0.85;
+  }
+`;

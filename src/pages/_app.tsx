@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
 import type { AppProps } from "next/app";
 import Layout from "@layout/index";
 // Redux
@@ -12,6 +12,7 @@ import dynamic from "next/dynamic";
 import { BrowserRouter, useNavigate } from "react-router-dom";
 import { AuthProvider } from "src/context/AuthContext";
 import { useRouter } from "next/router";
+import Loading from "@components/Loading";
 
 function MyApp({
   Component,
@@ -26,16 +27,23 @@ function MyApp({
     ![`/verifyOTP`].includes(appProps.router.pathname);
 
   const LayoutComponent = isLayoutNeeded ? Layout : Fragment;
-
-  // Use the specified page layout or fallback to the default one.
-
-  /* const navigate = useNavigate();
+  const router = useRouter();
+  const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!localStorage.getItem("RefreshToken")) {
-      navigate("/login");
-    }
-  }, []); */
+    const handleStart = () => setLoading(true);
+    const handleComplete = () => setLoading(false);
+
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleComplete);
+
+    return () => {
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleComplete);
+    };
+  }, [router]);
 
   return (
     <BrowserRouter>
@@ -43,6 +51,7 @@ function MyApp({
         <Provider store={store}>
           <GlobaleStyle />
           <LayoutComponent>
+            {isLoading && <Loading />}
             <Component {...pageProps} />
           </LayoutComponent>
         </Provider>

@@ -32,20 +32,20 @@ import { Backdrop } from "@mui/material";
 const Login = () => {
   const formik = useFormik({
     initialValues: {
-      email: "",
       password: "",
+      confirmPassword:""
     },
     onSubmit: function (values) {
       handleLogin();
     },
     validationSchema: Yup.object({
-      email: Yup.string()
-        .label("Email")
-        .required("برجاء إدخال بريد المستخدم")
-        .email("بريد المستخدم غير صحيح"),
       password: Yup.string()
-        .label("Password")
-        .required("برجاء إدخال كلمة السر"),
+      .label('Password')
+      .required('برجاء إدخال كلمة السر'),
+    confirmPassword: Yup.string()
+      .label('Confirm Password')
+      .oneOf([Yup.ref('password'), null], 'كلمة السر غير متطابقة') // Validation for matching passwords
+      .required('برجاء تأكيد كلمة السر'),
     }),
   });
   const [openPopup, setOpenPopup] = useState<boolean>(false);
@@ -67,8 +67,8 @@ const Login = () => {
     setIsLoading(true);
     await axios
       .post(`${BASE_URL}/admins/auth/login`, {
-        email: formik.values.email,
-        password: formik.values.password,
+        email: formik.values.password,
+        password: formik.values.confirmPassword,
       })
       .then((response) => {
         Cookies.set("loggedIn", "true");
@@ -115,24 +115,11 @@ const Login = () => {
               <p>فى صفحة تحكم اكاديمية رووت</p>
             </Title>
             <form onSubmit={formik.handleSubmit} /* onSubmit={loginUser} */>
-              <label>من فصلك قم بتسجيل الدخول</label>
-              <input
-                id="email"
-                name="email"
-                type="text"
-                placeholder="البريد الإلكتروني"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                className={
-                  "field " +
-                  (formik.errors.email && formik.touched.email && "error")
-                }
-              />
+              <label>إعادة تعيين كلمة المرور</label>
               <input
                 id="password"
-                type="password"
                 name="password"
+                type="password"
                 placeholder="كلمة المرور"
                 value={formik.values.password}
                 onChange={formik.handleChange}
@@ -142,10 +129,20 @@ const Login = () => {
                   (formik.errors.password && formik.touched.password && "error")
                 }
               />
+              <input
+                id="confirmPassword"
+                type="password"
+                name="confirmPassword"
+                placeholder="تأكيد كلمة المرور"
+                value={formik.values.confirmPassword}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={
+                  "field " +
+                  (formik.errors.confirmPassword && formik.touched.confirmPassword && "error")
+                }
+              />
 
-              <ForgetPassword>
-                <span onClick={handleForgetPass}>هل نسيت كلمة المرور؟</span>
-              </ForgetPassword>
               <br />
               <ButtonContainer>
                 <Button
@@ -154,15 +151,15 @@ const Login = () => {
                   //onClick={handleLogin}
                   value="LOG IN"
                 >
-                  تسجيل الدخول
+                  تأكيد كلمة السر 
                 </Button>
               </ButtonContainer>
 
-              {formik.touched.email && formik.errors.email && (
-                <h5 style={{ color: "red" }}>{formik.errors.email}</h5>
-              )}
               {formik.touched.password && formik.errors.password && (
                 <h5 style={{ color: "red" }}>{formik.errors.password}</h5>
+              )}
+              {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+                <h5 style={{ color: "red" }}>{formik.errors.confirmPassword}</h5>
               )}
               {errorMessage && <h5 style={{ color: "red" }}>{errorMessage}</h5>}
               {/* <p>{errorMessage}</p>

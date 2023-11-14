@@ -1,6 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import Image from "next/image";
-import React, { FC } from "react";
+import React, { FC, useState } from "react";
 import {
   Button,
   MLContainer,
@@ -10,6 +10,8 @@ import {
   NavbarLinks,
   Notifications,
   User,
+  Button2,
+  Button3,
 } from "./navbarStyles";
 import Link from "next/link";
 import Cookies from "js-cookie";
@@ -17,15 +19,27 @@ import { useRouter } from "next/router";
 import SelectDropdown from "@components/Select copy";
 import Icon from "@components/Icon";
 import LogoutIcon from "@icons/Logout";
+import { Dialog } from "@mui/material";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
 
 const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
   const router = useRouter();
+  const [openDialog, setOpenDialog] = useState(false);
 
   const isAdmin = Cookies.get("isAdmin");
 
   const isHomeActiveLink = (route: string) => router.pathname === `${route}`;
 
   const isActiveLink = (route: string) => router.pathname.includes(`${route}`);
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   const logout = () => {
     Cookies.remove("loggedIn");
@@ -99,7 +113,7 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
             />
           )}
 
-          <Button onClick={logout} style={{ color: "white" }}>
+          <Button onClick={handleOpenDialog} style={{ color: "white" }}>
             <Icon>
               <LogoutIcon />
             </Icon>
@@ -107,6 +121,25 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
           </Button>
         </NavbarLinks>
       </MLContainer>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          <span style={{ fontSize: "24px", fontFamily: "Arb-Regular" }}>
+            هل انت متأكد من تسجيل الخروج؟
+          </span>
+        </DialogTitle>
+
+        <DialogActions style={dialogStyles2}>
+          <Button3 onClick={logout}>تسجيل خروج</Button3>
+          <Button2 onClick={handleCloseDialog} autoFocus>
+            رجوع
+          </Button2>
+        </DialogActions>
+      </Dialog>
     </MLStyled>
   );
 };
@@ -170,3 +203,11 @@ export const links = [
     path: "/rules",
   },
 ];
+
+const dialogStyles2 = {
+  width: "100%",
+  justifyContent: "space-between",
+  display: "flex",
+  gap: "8px",
+  padding: "12px 76px",
+};

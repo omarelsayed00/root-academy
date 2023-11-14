@@ -64,9 +64,7 @@ const Profile = () => {
   const [height, setHeight] = useState("");
   const [level, setLevel] = useState("");
   const [position, setPositon] = useState("");
-
   const [playerRating, setPlayerRating] = useState("5");
-
   const [strength, setStrength] = useState(0);
   const [attack, setAttack] = useState(0);
   const [defense, setDefense] = useState(0);

@@ -206,6 +206,7 @@ export const ForgetPassword = styled.div`
   justify-content: right;
   gap: 6px;
   padding-right: 6px;
+  margin-top: 8px;
 
   span {
     font-size: 13px;

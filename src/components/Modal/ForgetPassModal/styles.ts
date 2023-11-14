@@ -31,7 +31,7 @@ export const MLHeader = styled.div`
   span {
     display: inline-block;
     flex: 1;
-    font-weight: 275;
+    font-weight: 600;
     font-size: 18px;
     line-height: 29px;
     text-align: center;

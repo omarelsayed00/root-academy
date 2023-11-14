@@ -50,7 +50,6 @@ const Login = () => {
   });
   const [openPopup, setOpenPopup] = useState<boolean>(false);
   const handleForgetPass = () => {
-    console.log("yooo");
     setOpenPopup(true);
   };
 
@@ -74,7 +73,7 @@ const Login = () => {
         Cookies.set("loggedIn", "true");
         console.log(response.data);
         console.log(response.data.data.token);
-        localStorage.setItem("accesToken", response.data.data.token);
+        localStorage.setItem("accessToken", response.data.data.token);
         setIsLoading(false);
         router.push("/");
       })
@@ -142,7 +141,6 @@ const Login = () => {
                   (formik.errors.password && formik.touched.password && "error")
                 }
               />
-
               <ForgetPassword>
                 <span onClick={handleForgetPass}>هل نسيت كلمة المرور؟</span>
               </ForgetPassword>
@@ -190,6 +188,11 @@ const Login = () => {
           />
         </LeftContainer>
       </LoginContainer>
+      {openPopup && (
+        <Modal onClose={() => setOpenPopup(false)}>
+          <ForgetPassModal onClose={() => setOpenPopup(false)} />
+        </Modal>
+      )}
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoading}
