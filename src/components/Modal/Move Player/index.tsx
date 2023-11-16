@@ -22,8 +22,6 @@ import SelectDropdown from "@components/Select";
 import SelectDropdown2 from "@components/Select2";
 import SelectDropdown3 from "@components/Select3";
 
-import CloseIcon from "@icons/Close";
-
 const optionsData = [
   "الفريق الأول",
   "الفريق الثاني",
@@ -34,27 +32,71 @@ const optionsData = [
 const MovePlayer = (props: any) => {
   const router = useRouter();
   const [startDate, setStartDate] = useState(new Date());
-  const [selected, setSelected] = useState("...");
-  const [options, setOptions] = useState(
-    optionsData.filter((option) => {
-      return option != props.team;
-    })
-  );
+  const [selectedTeam, setSelectedTeam] = useState(".......");
+  const [teams, setTeams] = useState([]);
+  const [options, setOptions] = useState([]);
 
-  const movePlayer = () => {
-    console.log("id: " + props.movedId);
+  const { BASE_URL } = process.env;
 
-    const editedPlayers = props.players.map((member: any) => {
-      if (member.id == props.movedId) {
-        return {
-          ...member,
-          team: selected,
-        };
-      }
-      return member;
-    });
+  useEffect(() => {
+    fetchTeams();
+  }, []);
 
-    props.setPlayers(editedPlayers);
+  const fetchTeams = async () => {
+    props.setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/teams`, config)
+      .then((response) => {
+        console.log(response.data.data.date);
+        setTeams(response.data.data.date);
+        setOptions(
+          response.data.data.date
+            .filter((team: any) => team.name !== props.team)
+            .map((team: any) => team.name)
+        );
+        //setSelectedBus(response.data.results[0].bus_name);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    props.setIsLoading(false);
+  };
+
+  const movePlayer = async () => {
+    const team: any = teams.find((team: any) => team.name === selectedTeam);
+    const formData = new FormData();
+    formData.append("_method", "put");
+    formData.append("team_id", team.id);
+    formData.append("name", props.currentPlayer.name);
+    formData.append("weight", props.currentPlayer.weight);
+    formData.append("length", props.currentPlayer.length);
+    formData.append("level", props.currentPlayer.level);
+    formData.append("playerRating", props.currentPlayer.playerRating);
+    formData.append("physical", props.currentPlayer.strength);
+    formData.append("attack", props.currentPlayer.attack);
+    formData.append("defense", props.currentPlayer.defense);
+    formData.append("dribble", props.currentPlayer.skills);
+    formData.append("position", props.currentPlayer.position);
+
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/players/${props.movedId}`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        props.fetchPlayers();
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
     props.onClose();
   };
 
@@ -79,8 +121,8 @@ const MovePlayer = (props: any) => {
                   arrowColor: "black",
                   transparent: true,
                 }}
-                setValue={setSelected}
-                value={selected}
+                setValue={setSelectedTeam}
+                value={selectedTeam}
               />
             </Content>
             <Actions>

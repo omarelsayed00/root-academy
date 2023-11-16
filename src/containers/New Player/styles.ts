@@ -146,7 +146,6 @@ export const Column = styled.div`
   border-radius: 12px;
   height: 100%;
   padding: 12px 0px;
-
   h2 {
     height: 2px;
     border-top: 1.5px solid #bebebe;
@@ -361,7 +360,7 @@ export const Button = styled.button`
   text-align: center;
   justify-content: center;
   gap: 6px;
-  font-size: 18px;
+  font-size: 16px;
   color: white;
   font-weight: 600;
   padding: 6px;
@@ -381,7 +380,7 @@ export const Button2 = styled.button`
   text-align: center;
   justify-content: center;
   gap: 6px;
-  font-size: 18px;
+  font-size: 16px;
   color: white;
   font-weight: 600;
   padding: 6px;

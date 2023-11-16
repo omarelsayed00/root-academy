@@ -89,7 +89,7 @@ const SelectDropdown = ({ data, settings, value, setValue }) => {
         arrow={arrowColor}
         onClick={() => showSelect()}
       >
-        {value}
+        <span>{value}</span>
       </Value>
       <Dropdown ref={dropdownRef} bgColor={bgColor} isActive={isActive}>
         <List

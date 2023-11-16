@@ -19,6 +19,7 @@ import {
   ProgressBar,
   Stats,
   Button4,
+  SelectFilter,
 } from "./styles";
 import axios from "axios";
 import AuthContext from "src/context/AuthContext";
@@ -73,9 +74,12 @@ const Profile = () => {
   const { BASE_URL } = process.env;
   const { id } = router.query;
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTeam, setSelectedTeam] = useState(".......");
+  const [teams, setTeams] = useState([]);
 
   useEffect(() => {
     fetchPlayer();
+    fetchTeams();
   }, []);
 
   const fetchPlayer = async () => {
@@ -92,8 +96,9 @@ const Profile = () => {
         const data = response.data.data;
         setPlayer(response.data.data);
         setName(data.name);
+        setNickname(data.shortName);
         setTeam(data.team);
-        setBirthDate(data.date_of_birth);
+        setBirthDate(data.dateOfBirth);
         setWeight(data.weight);
         setHeight(data.length);
         setLevel(data.level);
@@ -103,7 +108,7 @@ const Profile = () => {
         setSkills(data.dribble);
         setPlayerRating(data.playerRating);
         setPlayerRating(data.stars);
-        setImage(data.profile_image);
+        setImage(data.profileImage);
         setPositon(data.position);
       })
       .catch((error) => {
@@ -117,12 +122,13 @@ const Profile = () => {
     const formData = new FormData();
     formData.append("_method", "put");
     formData.append("name", name);
-    formData.append("team", team);
-    //formData.append("birthDate", birthDate);
+    formData.append("shortName", nickname);
+    formData.append("team_id", team);
+    formData.append("dateOfBirth", birthDate);
     formData.append("weight", weight);
     formData.append("length", height);
     formData.append("level", level);
-    formData.append("image", image);
+    formData.append("profileImage", image);
     formData.append("playerRating", playerRating);
     formData.append("physical", strength);
     formData.append("attack", attack);
@@ -147,6 +153,35 @@ const Profile = () => {
     setEditable1(false);
     setEditable2(false);
     setEditable3(false);
+  };
+
+  const fetchTeams = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/teams`, config)
+      .then((response) => {
+        console.log(response.data.data.date);
+        setTeams(response.data.data.date);
+        /*         setOptions(
+          response.data.data.date
+            .filter((team: any) => team.name !== props.team)
+            .map((team: any) => team.name)
+        ); */
+        //setSelectedBus(response.data.results[0].bus_name);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
+  const handleSelectChange = (event: any) => {
+    setSelectedTeam(event.target.value);
   };
 
   const handleOpenDialog = () => {
@@ -204,6 +239,17 @@ const Profile = () => {
             onChange={(e) => setTeam(e.target.value)}
             readOnly={!editable1}
           />
+          <SelectFilter
+            //placeholder="ggg"
+            value={selectedTeam}
+            onChange={handleSelectChange}
+          >
+            {teams.map((bus: any, index: any) => (
+              <option key={index} value={bus.name}>
+                {bus.name}
+              </option>
+            ))}
+          </SelectFilter>
           <h1>المركز</h1>
           <input
             type="text"
@@ -277,9 +323,8 @@ const Profile = () => {
               </Position>
             </CardHeader>
             <Details>
-              <h1> {name}</h1>
+              <h1> {nickname}</h1>
               <StatsCard>
-                {" "}
                 <p>{skills ? skills : ""} DRI</p>
                 <p>{defense ? defense : ""} DEF</p>
                 <p>{attack ? attack : ""} ATT</p>

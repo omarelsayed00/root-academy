@@ -62,7 +62,7 @@ export const Column = styled.div`
   width: 30%;
   background-color: white;
   border-radius: 12px;
-  height: 80%;
+  height: max-content;
   padding: 12px 0px;
 
   h2 {
@@ -355,5 +355,37 @@ export const Button4 = styled.button`
   cursor: pointer;
   :hover {
     opacity: 0.85;
+  }
+`;
+
+export const SelectFilter = styled.select`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 2px 12px;
+  font-size: calc(0.7vw + 7px);
+  border-radius: 7px;
+  background-color: #ededed;
+  cursor: pointer;
+  border: none;
+  border-left: 0.5vw solid transparent;
+  border: 1px solid #f0f0f0;
+  border-radius: 26px;
+  border: 1px solid black;
+  border-radius: 4px;
+  width: 100%;
+
+  option {
+    outline: none;
+    border: none;
+    border-radius: 2px;
+    color: black;
+    background-color: #f2f2f7;
+    cursor: pointer;
+    font-size: calc(0.7vw + 7px);
+
+    &:hover {
+      background-color: red !important; /* Change the background color on hover */
+    }
   }
 `;

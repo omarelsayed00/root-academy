@@ -45,6 +45,11 @@ export const Value = styled.div`
   position: relative;
   color: black;
   padding: 7px 0px;
+  span {
+    width: 100%;
+    text-align: center;
+  }
+
   //height: 100%;
 
   &:after {
@@ -141,9 +146,15 @@ export const Item = styled.li`
   margin: 0;
   padding: 6px 22px;
   text-decoration: none;
+
   transition: all 0.3s ease-out;
   //opacity: ${({ isActive }) => (isActive ? "1" : "0.7")};
   font-size: 20px;
+
+  span {
+    width: 100%;
+    text-align: center;
+  }
 
   &:first-child {
     border: 0;

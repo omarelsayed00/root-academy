@@ -32,6 +32,7 @@ const SelectTableComponent = (props) => {
   const [openDialog2, setOpenDialog2] = useState(false);
   const [deletedId, setDeletedId] = useState(0);
   const [movedId, setMovedId] = useState(0);
+  const [currentPlayer, setCurrentPlayer] = useState();
   const [movedTeam, setMovedTeam] = useState("");
   const [MasterChecked, setMasterChecked] = useState(false);
   const [SelectedList, setSelectedList] = useState([]);
@@ -92,10 +93,11 @@ const SelectTableComponent = (props) => {
     setOpenDialog2(false);
   };
 
-  const movePlayer = (id, team) => {
+  const movePlayer = (id, team, player) => {
     setMovedId(id);
     setMovedTeam(team);
     setOpenPopup(true);
+    setCurrentPlayer(player);
   };
   // Select/ UnSelect Table rows
   const onMasterCheck = (e) => {
@@ -196,10 +198,10 @@ const SelectTableComponent = (props) => {
 
                 <td>
                   <Actions>
-                    <Edit onClick={() => router.push("/players/1")}>
+                    <Edit onClick={() => router.push(`/players/${user.id}`)}>
                       الملف الشخصى
                     </Edit>
-                    <Edit onClick={() => movePlayer(user.id, user.team)}>
+                    <Edit onClick={() => movePlayer(user.id, user.team, user)}>
                       نقل اللاعب
                     </Edit>
                     <Block onClick={() => handleOpenDialog2(user.id)}>
@@ -272,8 +274,10 @@ const SelectTableComponent = (props) => {
             onClose={() => setOpenPopup(false)}
             movedId={movedId}
             team={movedTeam}
-            players={props.users}
-            setPlayers={props.setUsers}
+            fetchPlayers={props.fetchPlayers}
+            currentPlayer={currentPlayer}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
           />
         </Modal>
       )}

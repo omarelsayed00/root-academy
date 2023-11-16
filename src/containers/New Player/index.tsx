@@ -48,6 +48,7 @@ import RatingIcon from "@icons/Rating";
 import Modal from "@components/Modal";
 import MovePlayer from "@components/Modal/Move Player";
 import UploadIcon from "@icons/Upload";
+import { Backdrop } from "@mui/material";
 
 const Profile = () => {
   const router = useRouter();
@@ -55,7 +56,8 @@ const Profile = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [players, setPlayers] = useState([]);
   const [fileName, setFileName] = useState("");
-  const [image, setImage] = useState("");
+  const [image, setImage] = useState<any>(null);
+  const [viewedImage, setViewedImage] = useState("");
   const [name, setName] = useState("");
   const [nickname, setNickname] = useState("");
   const [team, setTeam] = useState("");
@@ -65,27 +67,59 @@ const Profile = () => {
   const [level, setLevel] = useState("");
   const [position, setPositon] = useState("");
   const [playerRating, setPlayerRating] = useState("5");
-  const [strength, setStrength] = useState(0);
-  const [attack, setAttack] = useState(0);
-  const [defense, setDefense] = useState(0);
-  const [skills, setSkills] = useState(0);
+  const [strength, setStrength] = useState<any>(0);
+  const [attack, setAttack] = useState<any>(0);
+  const [defense, setDefense] = useState<any>(0);
+  const [skills, setSkills] = useState<any>(0);
   const [averageStrength, setAverageStrength] = useState(0);
+
+  const [isLoading, setIsLoading] = useState(false);
+  const { BASE_URL } = process.env;
 
   useEffect(() => {
     setAverageStrength(Math.round((strength + attack + defense + skills) / 4));
   }, [strength, attack, defense, skills]);
 
+  const addPlayer = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("short_name", nickname);
+    formData.append("team_id", "1");
+    formData.append("date_of_birth", birthDate);
+    formData.append("weight", weight);
+    formData.append("length", height);
+    formData.append("level", level);
+    formData.append("profile_image", image);
+    formData.append("playerRating", playerRating);
+    formData.append("physical", strength);
+    formData.append("attack", attack);
+    formData.append("defense", defense);
+    formData.append("dribble", skills);
+    formData.append("position", position);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/players`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        //router.push("/players");
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
   const handleOpenDialog = () => {
     setOpenDialog(true);
-    //setDeletedId(id);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-  };
-
-  const removeUser = () => {
-    handleOpenDialog();
   };
 
   const deleteUser = () => {
@@ -99,7 +133,8 @@ const Profile = () => {
   };
 
   const onImageChange = (event: any) => {
-    setImage(URL.createObjectURL(event.target.files[0]));
+    setViewedImage(URL.createObjectURL(event.target.files[0]));
+    setImage(event.target.files[0]);
     setFileName(event.target.files[0].name);
   };
 
@@ -202,7 +237,9 @@ const Profile = () => {
         <Card>
           <CardContent>
             <CardHeader>
-              <ImageCard>{image && <img src={image} alt="" />}</ImageCard>
+              <ImageCard>
+                {viewedImage && <img src={viewedImage} alt="" />}
+              </ImageCard>
               <Position>
                 <h1>{averageStrength ? averageStrength : ""}</h1>
                 <h2>{position ? position : ""}</h2>
@@ -220,8 +257,8 @@ const Profile = () => {
           </CardContent>
         </Card>
         <Actions>
-          <Button onClick={() => router.push("/players")}>إنشاء اللاعب</Button>
-          <Button2 onClick={() => router.push("/players")}>إلغاء</Button2>
+          <Button onClick={addPlayer}>إنشاء اللاعب</Button>
+          <Button2 onClick={handleOpenDialog}>إلغاء</Button2>
         </Actions>
       </Main>
       <Column2>
@@ -301,13 +338,13 @@ const Profile = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <span style={{ fontSize: "24px", fontFamily: "Arb-Regular" }}>
-            هل انت متأكد من حذف المستخدم؟
+          <span style={{ fontSize: "20px", fontFamily: "Arb-Regular" }}>
+            سيتم فقد جميع البيانات, هل انت متأكد؟{" "}
           </span>
         </DialogTitle>
 
         <DialogActions style={dialogStyles2}>
-          <Button onClick={deleteUser}>تأكيد</Button>
+          <Button onClick={() => router.push("/players")}>تأكيد</Button>
           <Button2 onClick={handleCloseDialog} autoFocus>
             رجوع
           </Button2>
@@ -325,6 +362,13 @@ const Profile = () => {
           />
         </Modal>
       )}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };
