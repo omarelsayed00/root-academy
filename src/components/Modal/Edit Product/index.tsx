@@ -28,6 +28,8 @@ const EditProductModal = (props: any) => {
           products={props.products}
           setProducts={props.setProducts}
           product={props.product}
+          fetchProducts={props.fetchProducts}
+          setIsLoading={props.setIsLoading}
         />
       </MLContainer>
     </MLStyled>

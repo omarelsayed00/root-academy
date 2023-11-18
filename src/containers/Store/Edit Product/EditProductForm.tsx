@@ -30,24 +30,34 @@ const EditProductForm = (props: any) => {
   const [price, setPrice] = useState(props.product[0].price);
   const [image, setImage] = useState(props.product[0].image);
   const [fileName, setFileName] = useState("");
+  const { BASE_URL } = process.env;
 
   useEffect(() => {
     console.log(props.product);
   }, []);
 
   const editProduct = async () => {
-    const editedProducts = props.products.map((user: any) => {
-      if (props.product[0].id == user.id) {
-        return {
-          ...user,
-          name: name != "" ? name : product.name,
-          price: price != "" ? price : product.price,
-          image: image != "" ? image : product.image,
-        };
-      }
-      return user;
-    });
-    props.setProducts(editedProducts);
+    props.setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "put");
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("image", image);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/products/${props.currentId}`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        props.fetchProducts();
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    props.setIsLoading(false);
     props.onClose();
   };
 

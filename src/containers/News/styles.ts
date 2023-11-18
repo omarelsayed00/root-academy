@@ -39,7 +39,6 @@ export const Info = styled.div`
   flex-direction: column;
   justify-content: right;
   width: 100%;
-
   h2 {
     font-size: 18px;
     line-height: 36px;
@@ -50,22 +49,27 @@ export const Info = styled.div`
   h4 {
     width: 100%;
     font-size: 18px;
+    line-height: 26px;
     font-weight: 400;
     color: black;
     background-color: #f2f2f7;
     border-radius: 4px;
-    padding: 8px 10px;
+    padding: 16px;
   }
 
   textarea {
-    font-size: 22px;
+    font-size: 20px;
+    line-height: 26px;
     font-weight: 600;
     background-color: #f2f2f7;
     border-radius: 4px;
-    padding: 4px;
+    padding: 16px;
     border: none;
     height: 150px;
     resize: none;
+    :focus {
+      border: 1px solid grey;
+    }
   }
 `;
 
@@ -96,6 +100,28 @@ export const DeleteButton = styled.button`
   border-radius: 8px;
   border: none;
   cursor: pointer;
+
+  :hover {
+    opacity: 0.9;
+  }
+`;
+
+export const EditButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  font-size: 14px;
+  text-align: center;
+  color: white;
+  background: #4bad60;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.9;
+  }
 `;
 
 export const UploadContainer = styled.div`
@@ -130,6 +156,12 @@ export const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 `;
 
 export const Button3 = styled.button`

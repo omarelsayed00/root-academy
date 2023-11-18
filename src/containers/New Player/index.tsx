@@ -49,6 +49,7 @@ import Modal from "@components/Modal";
 import MovePlayer from "@components/Modal/Move Player";
 import UploadIcon from "@icons/Upload";
 import { Backdrop } from "@mui/material";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const router = useRouter();
@@ -109,7 +110,12 @@ const Profile = () => {
         //router.push("/players");
       })
       .catch((error) => {
-        console.log(error.response);
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
       });
     setIsLoading(false);
   };
@@ -231,7 +237,6 @@ const Profile = () => {
               <RatingIcon />
             </Icon>
           </div>
-          <div></div>
         </Rating>
         {/* Make div and make the bck img the photo and divide it */}
         <Card>
@@ -338,7 +343,14 @@ const Profile = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <span style={{ fontSize: "20px", fontFamily: "Arb-Regular" }}>
+          <span
+            style={{
+              fontSize: "20px",
+              fontFamily: "Arb-Regular",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
             سيتم فقد جميع البيانات, هل انت متأكد؟{" "}
           </span>
         </DialogTitle>

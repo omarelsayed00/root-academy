@@ -255,7 +255,14 @@ const SelectTableComponent = (props) => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <span style={{ fontSize: "24px", fontFamily: "Arb-Regular" }}>
+          <span
+            style={{
+              fontSize: "24px",
+              fontFamily: "Arb-Regular",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
             هل انت متأكد من حذف المستخدم؟
           </span>
         </DialogTitle>

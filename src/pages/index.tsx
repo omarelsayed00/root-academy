@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import { AuthProvider } from "src/context/AuthContext";
 import axios from "axios";
 import dynamic from "next/dynamic";
-const Profile = dynamic(() => import("@containers/Login History"), {
+const LoginHistory = dynamic(() => import("@containers/Login History"), {
   ssr: false,
 });
 const Home: NextPage = () => {
@@ -17,7 +17,7 @@ const Home: NextPage = () => {
       <Header2 title="سجل الدخول" />
       <Content>
         <Page>
-          <Profile />
+          <LoginHistory />
         </Page>
       </Content>
     </Container>

@@ -34,6 +34,8 @@ import { productsData } from "@mocks/products";
 import Image from "next/image";
 import Modal from "@components/Modal";
 import EditProductModal from "@components/Modal/Edit Product";
+import { Backdrop } from "@mui/material";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const router = useRouter();
@@ -43,15 +45,73 @@ const Profile = () => {
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("");
   const [name, setName] = useState("");
-  const [price, setPrice] = useState<number>();
+  const [price, setPrice] = useState<any>();
   const [searchText, setSearchText] = useState("");
   const [deletedId, setDeletedId] = useState(0);
-  const [currentId, setCurrentId] = useState(0);
+  const [editId, setEditId] = useState(0);
+  const [currentProduct, setCurrentProduct] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const { BASE_URL } = process.env;
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/products`, config)
+      .then((response) => {
+        //console.log(response.data.data);
+        //setProducts(response.data.data);
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
+      });
+    setIsLoading(false);
+  };
+
+  const addProduct = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("price", price);
+    formData.append("image", image);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/products`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchProducts();
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+    setName("");
+    setFileName("");
+    setPrice(undefined);
+    setImage("");
+  };
 
   const onImageChange = (event: any) => {
     if (event.target.files && event.target.files[0]) {
       setFileName(event.target.files[0].name);
-      setImage(URL.createObjectURL(event.target.files[0]));
+      setImage(event.target.files[0]);
     }
   };
 
@@ -77,24 +137,10 @@ const Profile = () => {
     }
   };
 
-  const handleEditProduct = (id: any) => {
-    setCurrentId(id);
+  const handleEditProduct = (product: any, id: any) => {
+    setEditId(id);
+    setCurrentProduct(product);
     setOpenPopup2(true);
-  };
-
-  const addProduct = () => {
-    const newProduct = {
-      id: products.length + 1,
-      name: name,
-      image: image,
-      price: price,
-    };
-    setName("");
-    setFileName("");
-    setPrice(undefined);
-    setImage("");
-
-    setProducts([...products, newProduct]);
   };
 
   const handleOpenDialog = (id: any) => {
@@ -106,12 +152,23 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
-  const deleteMatch = () => {
-    setProducts((users) =>
-      users.filter((user) => {
-        return user.id !== deletedId;
+  const deleteMatch = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .delete(`${BASE_URL}/admins/products/${deletedId}`, config)
+      .then((response) => {
+        //console.log(response.data.data);
+        fetchProducts();
       })
-    );
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
     setOpenDialog(false);
   };
 
@@ -175,7 +232,9 @@ const Profile = () => {
           <Product key={`${idx}`}>
             <ProductContent bk={product.image}>
               <Title>
-                <EditButton onClick={() => handleEditProduct(product.id)}>
+                <EditButton
+                  onClick={() => handleEditProduct(product, product.id)}
+                >
                   <Icon>
                     <EditIcon />
                   </Icon>
@@ -218,14 +277,20 @@ const Profile = () => {
           <EditProductModal
             onClose={() => setOpenPopup2(false)}
             products={products}
-            setProducts={setProducts}
-            currentId={currentId}
-            product={products.filter((product) => {
-              return product.id === currentId;
-            })}
+            fetchProducts={fetchProducts}
+            currentId={editId}
+            product={currentProduct}
+            setIsLoading={setIsLoading}
           />
         </Modal>
       )}
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };

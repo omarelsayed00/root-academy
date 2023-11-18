@@ -18,34 +18,40 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import Modal from "@components/Modal";
 import { Button2, Button3 } from "@containers/Upcoming Matches/styles";
+import axios from "axios";
 
 const SelectTableComponent = (props) => {
-  //const [List, setList] = useState(props.table);
-  const [openPopup, setOpenPopup] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [currentId, setCurrentId] = useState(0);
-
   const [MasterChecked, setMasterChecked] = useState(false);
   const [SelectedList, setSelectedList] = useState([]);
+  const { BASE_URL } = process.env;
 
-  const deleteUser = () => {
-    /* props.setUsers((users) =>
-      users.filter((user) => {
-        return user.id !== deletedId;
-      })
-    ); */
-    props.setUsers(
-      props.users.filter(
-        (x) => !SelectedList.filter((y) => y.id === x.id).length
-      )
-    );
+  const deleteUsers = async () => {
     setOpenDialog(false);
-  };
+    const usersIds = SelectedList.map((obj) => obj.id);
+    const formData = new FormData();
+    formData.append("_method", "delete");
+    for (let i = 0; i < usersIds.length; i++) {
+      formData.append(`userIds[${i}]`, usersIds[i]);
+    }
 
-  const handleEditUser = (id) => {
-    setCurrentId(id);
-    console.log("Current ID: " + id);
-    setOpenPopup(true);
+    let config = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accesToken")}`,
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/users/delete`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log(error.response);
+      });
+
+    props.fetchUsers();
+    setOpenDialog(false);
   };
 
   const handleOpenDialog = () => {
@@ -62,7 +68,6 @@ const SelectTableComponent = (props) => {
     // Check/ UnCheck All Items
     tempList.map((user) => (user.selected = e.target.checked));
     setMasterChecked(e.target.checked);
-    props.setUsers(tempList);
     setSelectedList(props.users.filter((e) => e.selected));
   };
 
@@ -81,12 +86,6 @@ const SelectTableComponent = (props) => {
     const totalCheckedItems = tempList.filter((e) => e.selected).length;
 
     setMasterChecked(totalItems === totalCheckedItems);
-    props.setUsers(tempList);
-    setSelectedList(props.users.filter((e) => e.selected));
-  };
-
-  // Event to get selected rows(Optional)
-  const getSelectedRows = () => {
     setSelectedList(props.users.filter((e) => e.selected));
   };
 
@@ -149,14 +148,14 @@ const SelectTableComponent = (props) => {
                       onChange={(e) => onItemCheck(e, user)}
                     />
                     <Name>
-                      <span>user@gmail.com</span>
+                      <span>{user.email}</span>
                       <p>{user.phone}</p>
                     </Name>
                   </Row>
                 </td>
                 <td>{user.name}</td>
-                <td>{user.id}</td>
-                <td>3 شهور</td>
+                <td>{user.driver}</td>
+                <td>{user.lastActivity}</td>
                 <td style={{ width: "40px" }}></td>
               </tr>
             ))}
@@ -187,7 +186,7 @@ const SelectTableComponent = (props) => {
         </DialogTitle>
 
         <DialogActions style={dialogStyles2}>
-          <Button2 onClick={deleteUser}>حذف</Button2>
+          <Button2 onClick={deleteUsers}>حذف</Button2>
           <Button3 onClick={handleCloseDialog} autoFocus>
             إلغاء
           </Button3>

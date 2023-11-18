@@ -32,6 +32,8 @@ import {
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
+import { Backdrop } from "@mui/material";
+import Cookies from "js-cookie";
 
 const optionsData = [
   { label: "السبت", value: "0" },
@@ -82,7 +84,36 @@ const Profile = () => {
   const [editingId, setEditingId] = useState(0);
   const [deletedId, setDeletedId] = useState(0);
   const [editingTraining, setEditingTraining] = useState();
+  const [isLoading, setIsLoading] = useState(false);
+  const { BASE_URL } = process.env;
 
+  useEffect(() => {
+    fetchTrainings();
+  }, []);
+
+  const fetchTrainings = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/players`, config)
+      .then((response) => {
+        console.log(response.data);
+        setTrainings(response.data.data.date);
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
+      });
+    setIsLoading(false);
+  };
   const handleSelectChange1 = (event: any) => {
     setDay1(event.target.value);
   };
@@ -558,7 +589,7 @@ const Profile = () => {
             <Schedule style={{ padding: "0px 0px", paddingBottom: "16px" }}>
               <Title>
                 <div></div>
-                <h1>{training.name}</h1>
+                <h1>{training.teamName}</h1>
                 <div>
                   <EditButton
                     onClick={() => editTraining(training.id, training)}
@@ -641,6 +672,13 @@ const Profile = () => {
           </Button2>
         </DialogActions>
       </Dialog>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };

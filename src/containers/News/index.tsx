@@ -7,6 +7,7 @@ import {
   Container,
   Content,
   DeleteButton,
+  EditButton,
   Info,
   Schedule,
   Title,
@@ -23,35 +24,123 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import { newsData } from "@mocks/news";
+import { Backdrop } from "@mui/material";
+import EditIcon from "@icons/Edit";
+import Cookies from "js-cookie";
 
 const options: Intl.DateTimeFormatOptions = {
+  year: "numeric",
+  month: "long",
   weekday: "long",
   day: "numeric",
-  month: "long",
 };
 
 const today = new Date();
 const formatter = new Intl.DateTimeFormat("ar", options);
 const parts = formatter.formatToParts(today);
-const arabicDate = `${parts[0].value} - ${parts[4].value} ${parts[2].value}`;
+const arabicDate = `${parts[0].value} - ${parts[4].value} ${parts[2].value} ${parts[6].value}`;
 
 const Profile = () => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
   const [news, setNews] = useState(newsData);
   const [newsText, setNewsText] = useState("");
-
+  const [editable, setEditable] = useState(false);
+  const [editableId, setEditableId] = useState(0);
+  const [editableText, setEditableText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [deletedId, setDeletedId] = useState(0);
+  const { BASE_URL } = process.env;
 
-  const addMatch = () => {
-    const newNews = {
-      id: news.length + 1,
-      date: arabicDate,
-      news: newsText,
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
     };
-    setNewsText("");
+    await axios
+      .get(`${BASE_URL}/admins/news`, config)
+      .then((response) => {
+        //console.log(response.data.data);
+        setNews(response.data.data);
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
+      });
+    setIsLoading(false);
+  };
 
-    setNews([...news, newNews]);
+  const addNews = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("content", newsText);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/news`, config)
+      .then((response) => {
+        console.log(response.data);
+        setNews(response.data.data.date);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+    setNewsText("");
+  };
+
+  const editNews = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "put");
+    formData.append("content", newsText);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/news/${editableId}`, config)
+      .then((response) => {
+        console.log(response.data);
+        setNews(response.data.data.date);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
+  const deleteNews = async () => {
+    setOpenDialog(false);
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .delete(`${BASE_URL}/admins/news/${deletedId}`, config)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
   };
 
   const handleOpenDialog = (id: any) => {
@@ -63,13 +152,17 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
-  const deleteMatch = () => {
-    setNews((users) =>
-      users.filter((user) => {
-        return user.id !== deletedId;
-      })
-    );
-    setOpenDialog(false);
+  const handleEditNews = (news: any) => {
+    setEditable(true);
+    setEditableText(news.content);
+    setEditableId(news.id);
+  };
+
+  const arabicDate = (date: any) => {
+    const today = new Date();
+    const formatter = new Intl.DateTimeFormat("ar", options);
+    const parts = formatter.formatToParts(today);
+    return `${parts[0].value} - ${parts[2].value} ${parts[4].value} ${parts[6].value}`;
   };
 
   return (
@@ -85,27 +178,67 @@ const Profile = () => {
             />
           </Info>
         </Content>
-        <Button onClick={addMatch}>نشر الخبر</Button>
+        <Button onClick={addNews}>نشر الخبر</Button>
       </Schedule>
-      {news.map((match: any, idx: number) => (
-        <Schedule key={`${idx}`}>
-          <Title>
-            <div></div>
-            <h1>{match.date}</h1>
-            <DeleteButton onClick={() => handleOpenDialog(match.id)}>
-              <p>حذف</p>
-              <Icon>
-                <DeleteIcon />
-              </Icon>
-            </DeleteButton>
-          </Title>
-
-          <Content>
-            <Info style={{ width: "120%" }}>
-              <h4>{match.news}</h4>
-            </Info>
-          </Content>
-        </Schedule>
+      {news.map((obj: any, idx: number) => (
+        <div key={`${idx}`}>
+          {editable && editableId == obj.id ? (
+            <Schedule key={`${idx}`}>
+              <Title>
+                <div></div>
+                <h1>{obj.createdAt.toLocaleDateString("ar-EG", options)}</h1>
+                <div className="actions">
+                  <EditButton onClick={editNews}>
+                    <p>حفظ</p>
+                    <Icon>
+                      <EditIcon />
+                    </Icon>
+                  </EditButton>
+                  <DeleteButton onClick={() => handleOpenDialog(obj.id)}>
+                    <p>حذف</p>
+                    <Icon>
+                      <DeleteIcon />
+                    </Icon>
+                  </DeleteButton>
+                </div>
+              </Title>
+              <Content>
+                <Info style={{ width: "120%" }}>
+                  <textarea
+                    value={editableText}
+                    onChange={(e) => setNewsText(e.target.value)}
+                  />
+                </Info>{" "}
+              </Content>
+            </Schedule>
+          ) : (
+            <Schedule key={`${idx}`}>
+              <Title>
+                <div></div>
+                <h1>{arabicDate(obj.createdAt)}</h1>
+                <div className="actions">
+                  <EditButton onClick={() => handleEditNews(obj)}>
+                    <p>تعديل</p>
+                    <Icon>
+                      <EditIcon />
+                    </Icon>
+                  </EditButton>
+                  <DeleteButton onClick={() => handleOpenDialog(obj.id)}>
+                    <p>حذف</p>
+                    <Icon>
+                      <DeleteIcon />
+                    </Icon>
+                  </DeleteButton>
+                </div>
+              </Title>
+              <Content>
+                <Info style={{ width: "120%" }}>
+                  <h4>{obj.content}</h4>
+                </Info>{" "}
+              </Content>
+            </Schedule>
+          )}
+        </div>
       ))}
 
       <Dialog
@@ -121,12 +254,19 @@ const Profile = () => {
         </DialogTitle>
 
         <DialogActions style={dialogStyles2}>
-          <Button3 onClick={deleteMatch}>تأكيد</Button3>
+          <Button3 onClick={deleteNews}>تأكيد</Button3>
           <Button2 onClick={handleCloseDialog} autoFocus>
             رجوع
           </Button2>
         </DialogActions>
       </Dialog>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };

@@ -79,7 +79,8 @@ export const Title = styled.div`
   width: 100%;
   padding: 0px 16px;
   h1 {
-    font-size: 20px;
+    font-size: 40px;
+    font-size: calc(0.777vw + 15px);
     font-weight: 600;
   }
 

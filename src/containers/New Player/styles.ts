@@ -161,6 +161,7 @@ export const Title = styled.div`
   padding: 0px 16px;
   h1 {
     font-size: 20px;
+    font-size: calc(0.7vw + 8px);
     font-weight: 600;
     text-align: center;
   }
@@ -181,6 +182,7 @@ export const User = styled.div`
   justify-content: space-between;
   h1 {
     font-size: 18px;
+    font-size: calc(0.7vw + 5px);
     font-weight: 600;
     line-height: 26px;
     color: #0b3a2d;
@@ -243,6 +245,7 @@ export const HalfCircle = styled.div`
 
   h1 {
     font-size: 25px;
+    font-size: calc(0.7vw + 14px);
     font-weight: bold;
     line-height: 32px;
   }
@@ -255,16 +258,18 @@ export const Rating = styled.div`
   justify-content: space-between;
   background-color: white;
   border-radius: 12px;
-  padding: 12px;
+  padding: 18px;
 
   h1 {
     font-size: 24px;
+    font-size: calc(0.7vw + 12px);
     font-weight: 600;
   }
   div {
     display: flex;
     align-items: center;
     gap: 6px;
+    margin-left: 12px;
   }
   input {
     font-size: 26px;
@@ -313,6 +318,7 @@ export const Info2 = styled.div`
 
   h3 {
     font-size: 18px;
+    font-size: calc(0.7vw + 8px);
     font-weight: 600;
     color: black;
   }

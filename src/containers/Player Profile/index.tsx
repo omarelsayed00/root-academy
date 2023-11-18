@@ -45,6 +45,7 @@ import {
   Position,
   StatsCard,
 } from "@containers/New Player/styles";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const router = useRouter();
@@ -112,7 +113,12 @@ const Profile = () => {
         setPositon(data.position);
       })
       .catch((error) => {
-        console.log(error.response);
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
       });
     setIsLoading(false);
   };
@@ -427,7 +433,14 @@ const Profile = () => {
         aria-describedby="alert-dialog-description"
       >
         <DialogTitle id="alert-dialog-title">
-          <span style={{ fontSize: "24px", fontFamily: "Arb-Regular" }}>
+          <span
+            style={{
+              fontSize: "24px",
+              fontFamily: "Arb-Regular",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
             هل انت متأكد من حذف المستخدم؟
           </span>
         </DialogTitle>

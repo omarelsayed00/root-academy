@@ -12,6 +12,7 @@ import { usersData } from "@mocks/usersList";
 import Image from "next/image";
 import { useRouter } from "next/router";
 import { Backdrop } from "@mui/material";
+import Cookies from "js-cookie";
 
 const LoginHistory = () => {
   const [openPopup, setOpenPopup] = useState<boolean>(false);
@@ -43,7 +44,12 @@ const LoginHistory = () => {
         //setSelectedBus(response.data.results[0].bus_name);
       })
       .catch((error) => {
-        console.log(error.response);
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
       });
     setIsLoading(false);
   };

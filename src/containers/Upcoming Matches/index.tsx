@@ -33,6 +33,8 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 import { ar } from "date-fns/locale";
+import { Backdrop } from "@mui/material";
+import Cookies from "js-cookie";
 
 const Profile = () => {
   const router = useRouter();
@@ -56,7 +58,36 @@ const Profile = () => {
   const input3Ref = useRef(null);
 
   const [deletedId, setDeletedId] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const { BASE_URL } = process.env;
 
+  useEffect(() => {
+    fetchMatches();
+  }, []);
+
+  const fetchMatches = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/players`, config)
+      .then((response) => {
+        console.log(response.data);
+        setMatches(response.data.data.date);
+      })
+      .catch((error) => {
+        if (error.response.status === 401) {
+          router.push("/login");
+          Cookies.remove("loggedIn");
+        } else {
+          console.log(error.response);
+        }
+      });
+    setIsLoading(false);
+  };
   const onImageChange = (event: any) => {
     if (event.target.files && event.target.files[0]) {
       setFileName(event.target.files[0].name);
@@ -224,7 +255,7 @@ const Profile = () => {
           <Content>
             <Info style={{ width: "120%" }}>
               <h2>اسم الفريق المنافس</h2>
-              <h4>{match.name}</h4>
+              <h4>{match.opponentName}</h4>
             </Info>
             <Info>
               <h2>لوجو الفريق المنافس</h2>
@@ -275,6 +306,13 @@ const Profile = () => {
           </Button2>
         </DialogActions>
       </Dialog>
+      <Backdrop
+        sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+        onClick={() => setIsLoading(true)}
+      >
+        <div className="loading"></div>
+      </Backdrop>
     </Container>
   );
 };
