@@ -194,6 +194,7 @@ export const UploadContainer = styled.div`
 
   h5 {
     font-size: 18px;
+    font-weight: bold;
     padding: 8px 0px;
   }
 `;

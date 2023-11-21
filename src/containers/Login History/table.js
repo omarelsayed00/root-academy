@@ -111,27 +111,44 @@ const SelectTableComponent = (props) => {
               <th scope="col">طريقة الدخول</th>
 
               <th scope="col">اخر ظهور</th>
-              <th dir="ltr" style={{ width: "40px" }}>
-                {/*      <button
-                  dir="ltr"
-                  style={{
-                    cursor: "pointer",
-                    border: "none",
-                    textAlign: "left",
-                  }}
-                > */}
+              <th style={{ width: "40px" }}>
                 <div
                   style={{
-                    cursor: "pointer",
-                    width: "20px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    justifyContent: "flex-end",
                   }}
-                  onClick={handleOpenDialog}
                 >
-                  <Icon strokeColor="transparent">
-                    <DeleteIcon2 />
-                  </Icon>
+                  <div className="navigation">
+                    <button
+                      onClick={props.handlePreviousPage}
+                      disabled={props.page === 1}
+                    >
+                      {"<"}
+                    </button>
+                    <span>
+                      {props.page}/{props.lastPage}
+                    </span>
+                    <button
+                      onClick={props.handleNextPage}
+                      disabled={props.page == props.lastPage}
+                    >
+                      {">"}
+                    </button>
+                  </div>
+                  <div
+                    style={{
+                      cursor: "pointer",
+                      width: "20px",
+                    }}
+                    onClick={handleOpenDialog}
+                  >
+                    <Icon strokeColor="transparent">
+                      <DeleteIcon2 />
+                    </Icon>
+                  </div>
                 </div>
-                {/* </button> */}
               </th>
             </tr>
           </thead>

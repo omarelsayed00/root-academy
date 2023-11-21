@@ -26,8 +26,8 @@ const EditProductModal = (props: any) => {
         <EditProductForm
           onClose={props.onClose}
           products={props.products}
-          setProducts={props.setProducts}
           product={props.product}
+          currentId={props.currentId}
           fetchProducts={props.fetchProducts}
           setIsLoading={props.setIsLoading}
         />

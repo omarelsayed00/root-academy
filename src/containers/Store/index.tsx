@@ -45,17 +45,20 @@ const Profile = () => {
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("");
   const [name, setName] = useState("");
+  const [sku, setSku] = useState("");
   const [price, setPrice] = useState<any>();
   const [searchText, setSearchText] = useState("");
   const [deletedId, setDeletedId] = useState(0);
   const [editId, setEditId] = useState(0);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const [currentProduct, setCurrentProduct] = useState();
   const [isLoading, setIsLoading] = useState(false);
   const { BASE_URL } = process.env;
 
   useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [page]);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -65,10 +68,11 @@ const Profile = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/products`, config)
+      .get(`${BASE_URL}/admins/products?page=${page}`, config)
       .then((response) => {
-        //console.log(response.data.data);
-        //setProducts(response.data.data);
+        console.log(response.data.data);
+        setLastPage(response.data.meta.last_page);
+        setProducts(response.data.data);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -86,6 +90,7 @@ const Profile = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("price", price);
+    formData.append("sku", sku);
     formData.append("image", image);
     let config = {
       headers: {
@@ -97,20 +102,22 @@ const Profile = () => {
       .then((response) => {
         console.log(response.data);
         fetchProducts();
+        setName("");
+        setSku("");
+        setFileName("");
+        setPrice(undefined);
+        setImage("");
       })
       .catch((error) => {
         console.log(error.response);
       });
     setIsLoading(false);
-    setName("");
-    setFileName("");
-    setPrice(undefined);
-    setImage("");
   };
 
   const onImageChange = (event: any) => {
     if (event.target.files && event.target.files[0]) {
       setFileName(event.target.files[0].name);
+      console.log(event.target.files[0]);
       setImage(event.target.files[0]);
     }
   };
@@ -172,6 +179,18 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page != lastPage) {
+      setPage(page + 1);
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -180,6 +199,11 @@ const Profile = () => {
             <h2>اسم المنتج</h2>
             <input value={name} onChange={(e) => setName(e.target.value)} />
           </Info>
+          <Info style={{ width: "150%" }}>
+            <h2>SKU</h2>
+            <input value={sku} onChange={(e) => setSku(e.target.value)} />
+          </Info>
+
           <Info>
             <h2>صور المنتج</h2>
             <UploadContainer>
@@ -252,6 +276,28 @@ const Profile = () => {
           </Product>
         ))}
       </Products>
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          justifyContent: "flex-end",
+        }}
+      >
+        <div className="navigation2">
+          <button onClick={handlePreviousPage} disabled={page === 1}>
+            {"<"}
+          </button>
+          <span>
+            {page}/{lastPage}
+          </span>
+          <button onClick={handleNextPage} disabled={page == lastPage}>
+            {">"}
+          </button>
+        </div>
+      </div>
+
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}

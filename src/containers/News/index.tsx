@@ -27,6 +27,7 @@ import { newsData } from "@mocks/news";
 import { Backdrop } from "@mui/material";
 import EditIcon from "@icons/Edit";
 import Cookies from "js-cookie";
+import DeleteIcon2 from "@icons/Delete2";
 
 const options: Intl.DateTimeFormatOptions = {
   year: "numeric",
@@ -43,18 +44,20 @@ const arabicDate = `${parts[0].value} - ${parts[4].value} ${parts[2].value} ${pa
 const Profile = () => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
-  const [news, setNews] = useState(newsData);
+  const [news, setNews] = useState([]);
   const [newsText, setNewsText] = useState("");
   const [editable, setEditable] = useState(false);
   const [editableId, setEditableId] = useState(0);
   const [editableText, setEditableText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [deletedId, setDeletedId] = useState(0);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const { BASE_URL } = process.env;
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [page]);
 
   const fetchNews = async () => {
     setIsLoading(true);
@@ -64,9 +67,10 @@ const Profile = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/news`, config)
+      .get(`${BASE_URL}/admins/news?page=${page}`, config)
       .then((response) => {
         //console.log(response.data.data);
+        setLastPage(response.data.meta.last_page);
         setNews(response.data.data);
       })
       .catch((error) => {
@@ -83,6 +87,7 @@ const Profile = () => {
   const addNews = async () => {
     setIsLoading(true);
     const formData = new FormData();
+    formData.append("title", "news");
     formData.append("content", newsText);
     let config = {
       headers: {
@@ -90,10 +95,10 @@ const Profile = () => {
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/news`, config)
+      .post(`${BASE_URL}/admins/news`, formData, config)
       .then((response) => {
         console.log(response.data);
-        setNews(response.data.data.date);
+        fetchNews();
       })
       .catch((error) => {
         console.log(error.response);
@@ -106,17 +111,19 @@ const Profile = () => {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("_method", "put");
-    formData.append("content", newsText);
+    //formData.append("title", "Edited Content");
+    formData.append("content", editableText);
     let config = {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("accessToken"),
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/news/${editableId}`, config)
+      .post(`${BASE_URL}/admins/news/${editableId}`, formData, config)
       .then((response) => {
         console.log(response.data);
-        setNews(response.data.data.date);
+        fetchNews();
+        setEditable(false);
       })
       .catch((error) => {
         console.log(error.response);
@@ -136,6 +143,7 @@ const Profile = () => {
       .delete(`${BASE_URL}/admins/news/${deletedId}`, config)
       .then((response) => {
         console.log(response.data);
+        fetchNews();
       })
       .catch((error) => {
         console.log(error.response);
@@ -158,8 +166,20 @@ const Profile = () => {
     setEditableId(news.id);
   };
 
-  const arabicDate = (date: any) => {
-    const today = new Date();
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page != lastPage) {
+      setPage(page + 1);
+    }
+  };
+
+  const arabicDate = (date: Date) => {
+    const today = new Date(date);
     const formatter = new Intl.DateTimeFormat("ar", options);
     const parts = formatter.formatToParts(today);
     return `${parts[0].value} - ${parts[2].value} ${parts[4].value} ${parts[6].value}`;
@@ -186,7 +206,7 @@ const Profile = () => {
             <Schedule key={`${idx}`}>
               <Title>
                 <div></div>
-                <h1>{obj.createdAt.toLocaleDateString("ar-EG", options)}</h1>
+                <h1>{arabicDate(obj.createdAt)}</h1>
                 <div className="actions">
                   <EditButton onClick={editNews}>
                     <p>حفظ</p>
@@ -206,7 +226,7 @@ const Profile = () => {
                 <Info style={{ width: "120%" }}>
                   <textarea
                     value={editableText}
-                    onChange={(e) => setNewsText(e.target.value)}
+                    onChange={(e) => setEditableText(e.target.value)}
                   />
                 </Info>{" "}
               </Content>
@@ -240,6 +260,26 @@ const Profile = () => {
           )}
         </div>
       ))}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          justifyContent: "flex-end",
+        }}
+      >
+        <div className="navigation2">
+          <button onClick={handlePreviousPage} disabled={page === 1}>
+            {"<"}
+          </button>
+          <span>
+            {page}/{lastPage}
+          </span>
+          <button onClick={handleNextPage} disabled={page == lastPage}>
+            {">"}
+          </button>
+        </div>
+      </div>
 
       <Dialog
         open={openDialog}

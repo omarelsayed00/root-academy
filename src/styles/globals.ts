@@ -183,6 +183,44 @@ input[type=number] {
   }
 }
 
+.navigation {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width:80px;
+
+  span {
+    color: black;
+    font-size: 14px;
+  }
+
+  button {
+    border: none;
+    border-radius: 4px;
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+.navigation2 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width:80px;
+
+  span {
+    color: black;
+    font-size: 16px;
+  }
+
+  button {
+    border: none;
+    border-radius: 4px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+}
+
 `;
 
 export const Container = styled.div`

@@ -18,12 +18,14 @@ const LoginHistory = () => {
   const [filteredList, setFilteredList] = useState([]);
   const [searchText, setSearchText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const router = useRouter();
   const { BASE_URL } = process.env;
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [page]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -33,9 +35,10 @@ const LoginHistory = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/users`, config)
+      .get(`${BASE_URL}/admins/users?page=${page}`, config)
       .then((response) => {
         console.log(response.data);
+        setLastPage(response.data.meta.last_page);
         setUsers(response.data.data.date);
         setFilteredList(response.data.data.date);
       })
@@ -71,6 +74,18 @@ const LoginHistory = () => {
     }
   };
 
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page != lastPage) {
+      setPage(page + 1);
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -86,7 +101,15 @@ const LoginHistory = () => {
           />
         </Input>
       </Header>
-      <SelectTableComponent users={filteredList} fetchUsers={fetchUsers} />
+      <SelectTableComponent
+        users={filteredList}
+        fetchUsers={fetchUsers}
+        setIsLoading={setIsLoading}
+        page={page}
+        lastPage={lastPage}
+        handlePreviousPage={handlePreviousPage}
+        handleNextPage={handleNextPage}
+      />
 
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}

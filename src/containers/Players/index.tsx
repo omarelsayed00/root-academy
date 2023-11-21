@@ -18,6 +18,8 @@ const LoginHistory = () => {
   const [openPopup, setOpenPopup] = useState<boolean>(false);
   const [players, setPlayers] = useState([]);
   const [searchText, setSearchText] = useState("");
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const [filteredList, setFilteredList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -26,7 +28,7 @@ const LoginHistory = () => {
 
   useEffect(() => {
     fetchPlayers();
-  }, []);
+  }, [page]);
 
   const fetchPlayers = async () => {
     setIsLoading(true);
@@ -36,9 +38,10 @@ const LoginHistory = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/players`, config)
+      .get(`${BASE_URL}/admins/players?page=${page}`, config)
       .then((response) => {
         console.log(response.data);
+        setLastPage(response.data.meta.last_page);
         setPlayers(response.data.data.date);
         setFilteredList(response.data.data.date);
         //setSelectedBus(response.data.results[0].bus_name);
@@ -76,6 +79,18 @@ const LoginHistory = () => {
     }
   };
 
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page != lastPage) {
+      setPage(page + 1);
+    }
+  };
+
   return (
     <Container>
       <Header>
@@ -92,7 +107,15 @@ const LoginHistory = () => {
         </Input>
         <AddBtn onClick={() => router.push("newPlayer")}>+ إنشاء لاعب</AddBtn>
       </Header>
-      <SelectTableComponent users={filteredList} fetchPlayers={fetchPlayers} />
+      <SelectTableComponent
+        users={filteredList}
+        fetchPlayers={fetchPlayers}
+        setIsLoading={setIsLoading}
+        page={page}
+        lastPage={lastPage}
+        handlePreviousPage={handlePreviousPage}
+        handleNextPage={handleNextPage}
+      />
       {openPopup && (
         <Modal onClose={() => setOpenPopup(false)}>
           <NewUserModal

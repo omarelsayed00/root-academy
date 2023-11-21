@@ -43,7 +43,7 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
 
   const logout = () => {
     Cookies.remove("loggedIn");
-    localStorage.removeItem("accesToken");
+    localStorage.removeItem("accessToken");
     router.push("/login");
     props.onClose();
   };

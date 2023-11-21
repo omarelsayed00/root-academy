@@ -25,10 +25,10 @@ import UploadIcon from "@icons/Upload2";
 const fileTypes = ["JPG", "PNG", "GIF"];
 
 const EditProductForm = (props: any) => {
-  const [product, setPoduct] = useState(props.product[0]);
-  const [name, setName] = useState(props.product[0].name);
-  const [price, setPrice] = useState(props.product[0].price);
-  const [image, setImage] = useState(props.product[0].image);
+  const [product, setPoduct] = useState(props.product);
+  const [name, setName] = useState(product.name);
+  const [price, setPrice] = useState(product.price);
+  const [image, setImage] = useState(product.image);
   const [fileName, setFileName] = useState("");
   const { BASE_URL } = process.env;
 

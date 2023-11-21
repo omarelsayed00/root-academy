@@ -35,11 +35,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { ar } from "date-fns/locale";
 import { Backdrop } from "@mui/material";
 import Cookies from "js-cookie";
+import EyeIcon from "@icons/Eye";
+import ViewImageModal from "@components/Modal/View Image";
+import Modal from "@components/Modal";
 
 const Profile = () => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
-  const [matches, setMatches] = useState(matchesData);
+  const [matches, setMatches] = useState([]);
   const [logo, setLogo] = useState("");
   const [fileName, setFileName] = useState("");
   const [team, setTeam] = useState("");
@@ -52,18 +55,22 @@ const Profile = () => {
   const [year, setYear] = useState<number>();
 
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [openPopup, setOpenPopup] = useState<boolean>(false);
+  const [currentImage, setCurrentImage] = useState("");
 
   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
   const input3Ref = useRef(null);
 
+  const [page, setPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
   const [deletedId, setDeletedId] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const { BASE_URL } = process.env;
 
   useEffect(() => {
     fetchMatches();
-  }, []);
+  }, [page]);
 
   const fetchMatches = async () => {
     setIsLoading(true);
@@ -73,9 +80,10 @@ const Profile = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/players`, config)
+      .get(`${BASE_URL}/admins/games`, config)
       .then((response) => {
         console.log(response.data);
+        setLastPage(response.data.meta.last_page);
         setMatches(response.data.data.date);
       })
       .catch((error) => {
@@ -96,9 +104,9 @@ const Profile = () => {
   };
 
   const formatDate = (date: any) => {
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
-    const year = date.getFullYear();
+    const day = new Date(date).getDate().toString().padStart(2, "0");
+    const month = (new Date(date).getMonth() + 1).toString().padStart(2, "0");
+    const year = new Date(date).getFullYear();
     return `${day}/${month}/${year}`;
   };
 
@@ -131,8 +139,6 @@ const Profile = () => {
     setYear(undefined);
     setHour("");
     setMinute("");
-
-    setMatches([...matches, newMatch]);
   };
 
   const handleOpenDialog = (id: any) => {
@@ -144,13 +150,42 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
-  const deleteMatch = () => {
-    setMatches((users) =>
-      users.filter((user) => {
-        return user.id !== deletedId;
-      })
-    );
+  const deleteMatch = async () => {
     setOpenDialog(false);
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .delete(`${BASE_URL}/admins/games/${deletedId}`, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchMatches();
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+    setOpenDialog(false);
+  };
+
+  const handleViewImage = (img: any) => {
+    setCurrentImage(img);
+    setOpenPopup(true);
+  };
+
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page != lastPage) {
+      setPage(page + 1);
+    }
   };
 
   return (
@@ -259,12 +294,15 @@ const Profile = () => {
             </Info>
             <Info>
               <h2>لوجو الفريق المنافس</h2>
-              <UploadContainer>
+              <UploadContainer
+                style={{ cursor: "pointer" }}
+                onClick={() => handleViewImage(match.opponentLogo)}
+              >
                 <h5 style={{ width: "100%", textAlign: "center" }}>
-                  {match.photo}
+                  Team Logo
                 </h5>
                 <Icon>
-                  <UploadIcon />
+                  <EyeIcon />
                 </Icon>
               </UploadContainer>
             </Info>
@@ -287,6 +325,27 @@ const Profile = () => {
         </Schedule>
       ))}
 
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "8px",
+          justifyContent: "flex-end",
+        }}
+      >
+        <div className="navigation2">
+          <button onClick={handlePreviousPage} disabled={page === 1}>
+            {"<"}
+          </button>
+          <span>
+            {page}/{lastPage}
+          </span>
+          <button onClick={handleNextPage} disabled={page == lastPage}>
+            {">"}
+          </button>
+        </div>
+      </div>
+
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -306,6 +365,14 @@ const Profile = () => {
           </Button2>
         </DialogActions>
       </Dialog>
+      {openPopup && (
+        <Modal onClose={() => setOpenPopup(false)}>
+          <ViewImageModal
+            onClose={() => setOpenPopup(false)}
+            img={currentImage}
+          />
+        </Modal>
+      )}
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={isLoading}

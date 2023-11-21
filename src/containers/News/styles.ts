@@ -156,10 +156,20 @@ export const Title = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  h1 {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+  }
+  div {
+    display: flex;
+    flex: 1;
+  }
 
   .actions {
     display: flex;
     align-items: center;
+    justify-content: left;
     gap: 8px;
   }
 `;
