@@ -8,6 +8,7 @@ import {
   Content,
   DateContainer,
   DeleteButton,
+  EditButton,
   Info,
   Schedule,
   Time,
@@ -38,8 +39,9 @@ import Cookies from "js-cookie";
 import EyeIcon from "@icons/Eye";
 import ViewImageModal from "@components/Modal/View Image";
 import Modal from "@components/Modal";
+import EditIcon from "@icons/Edit";
 
-const Profile = () => {
+const Matches = () => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
   const [matches, setMatches] = useState([]);
@@ -53,14 +55,21 @@ const Profile = () => {
   const [day, setDay] = useState<number>();
   const [month, setMonth] = useState<number>();
   const [year, setYear] = useState<number>();
-
+  const [teams, setTeams] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [openPopup, setOpenPopup] = useState<boolean>(false);
   const [currentImage, setCurrentImage] = useState("");
+  const [editable, setEditable] = useState(false);
+  const [editableMatch, setEditableMatch] = useState(false);
+  const [editableOpponentName, setEditableOpponentName] = useState("");
+  const [editableDate, setEditableDate] = useState("");
+  const [editableTime, setEditableTime] = useState("");
+  const [editableLogo, setEditableLogo] = useState("");
+  const [editableId, setEditableId] = useState("");
 
-  const input1Ref = useRef(null);
+  /*   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
-  const input3Ref = useRef(null);
+  const input3Ref = useRef(null); */
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -71,6 +80,10 @@ const Profile = () => {
   useEffect(() => {
     fetchMatches();
   }, [page]);
+
+  useEffect(() => {
+    fetchTeams();
+  }, []);
 
   const fetchMatches = async () => {
     setIsLoading(true);
@@ -96,42 +109,54 @@ const Profile = () => {
       });
     setIsLoading(false);
   };
-  const onImageChange = (event: any) => {
-    if (event.target.files && event.target.files[0]) {
-      setFileName(event.target.files[0].name);
-      setLogo(event.target.files[0]);
-    }
-  };
 
-  const formatDate = (date: any) => {
-    const day = new Date(date).getDate().toString().padStart(2, "0");
-    const month = (new Date(date).getMonth() + 1).toString().padStart(2, "0");
-    const year = new Date(date).getFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
-  const handleKeyDown = (e: any) => {
-    if (
-      e.key === "ArrowUp" ||
-      e.key === "ArrowDown" ||
-      e.key === "ArrowRight" ||
-      e.key === "ArrowLeft"
-    ) {
-      e.preventDefault(); // Prevents the cursor from moving in the input field
-      setAmpm((prevAmpm) => (prevAmpm === "ص" ? "م" : "ص"));
-    }
-  };
-
-  const addMatch = () => {
-    const newMatch = {
-      id: matches.length + 1,
-      name: team,
-      photo: fileName,
-      hour: hour,
-      minute: minute,
-      ampm: ampm,
-      date: selectedDate,
+  const fetchTeams = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
     };
+    await axios
+      .get(`${BASE_URL}/admins/teams`, config)
+      .then((response) => {
+        console.log(response.data.data.date);
+        setTeams(response.data.data.date);
+
+        //setSelectedBus(response.data.results[0].bus_name);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
+  const addMatch = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("opponent_name", editableOpponentName);
+    formData.append("opponent_logo", editableLogo);
+    formData.append("date", editableDate);
+    formData.append("time", editableTime);
+    formData.append("game_status", "unPlayed");
+    /// EDIT GAME STATUS
+
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/games`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchMatches();
+        setEditable(false);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
     setTeam("");
     setFileName("");
     setDay(undefined);
@@ -141,13 +166,30 @@ const Profile = () => {
     setMinute("");
   };
 
-  const handleOpenDialog = (id: any) => {
-    setDeletedId(id);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const editMatch = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "patch");
+    formData.append("opponent_name", editableOpponentName);
+    formData.append("opponent_logo", editableLogo);
+    formData.append("date", editableDate);
+    formData.append("time", editableTime);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/games/${editableId}`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchMatches();
+        setEditable(false);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
   };
 
   const deleteMatch = async () => {
@@ -171,9 +213,24 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
+  const handleOpenDialog = (id: any) => {
+    setDeletedId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
+
   const handleViewImage = (img: any) => {
     setCurrentImage(img);
     setOpenPopup(true);
+  };
+
+  const handleEditMatch = (match: any) => {
+    setEditable(true);
+    setEditableMatch(match);
+    setEditableId(match.id);
   };
 
   const handlePreviousPage = () => {
@@ -185,6 +242,32 @@ const Profile = () => {
   const handleNextPage = () => {
     if (page != lastPage) {
       setPage(page + 1);
+    }
+  };
+
+  const onImageChange = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      setFileName(event.target.files[0].name);
+      setLogo(event.target.files[0]);
+    }
+  };
+
+  const formatDate = (date: any) => {
+    const day = new Date(date).getDate().toString().padStart(2, "0");
+    const month = (new Date(date).getMonth() + 1).toString().padStart(2, "0");
+    const year = new Date(date).getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const handleKeyDown = (e: any) => {
+    if (
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "ArrowRight" ||
+      e.key === "ArrowLeft"
+    ) {
+      e.preventDefault(); // Prevents the cursor from moving in the input field
+      setAmpm((prevAmpm) => (prevAmpm === "ص" ? "م" : "ص"));
     }
   };
 
@@ -274,55 +357,125 @@ const Profile = () => {
         <Button onClick={addMatch}>إضافة المباراة</Button>
       </Schedule>
       {matches.map((match: any, idx: number) => (
-        <Schedule key={`${idx}`}>
-          <div></div>
-          <Title>
-            <div></div>
-            <h1>المباراة القادمة</h1>
-            <DeleteButton onClick={() => handleOpenDialog(match.id)}>
-              <p>حذف</p>
-              <Icon>
-                <DeleteIcon />
-              </Icon>
-            </DeleteButton>
-          </Title>
+        <div key={`${idx}`}>
+          {editable && editableId == match.id ? (
+            <Schedule>
+              <div></div>
+              <Title>
+                <div></div>
+                <h1>المباراة القادمة</h1>
+                <div className="actions">
+                  <EditButton onClick={editMatch}>
+                    <p>حفظ</p>
+                    <Icon>
+                      <EditIcon />
+                    </Icon>
+                  </EditButton>
+                  <DeleteButton onClick={() => handleOpenDialog(match.id)}>
+                    <p>حذف</p>
+                    <Icon>
+                      <DeleteIcon />
+                    </Icon>
+                  </DeleteButton>
+                </div>
+              </Title>
 
-          <Content>
-            <Info style={{ width: "120%" }}>
-              <h2>اسم الفريق المنافس</h2>
-              <h4>{match.opponentName}</h4>
-            </Info>
-            <Info>
-              <h2>لوجو الفريق المنافس</h2>
-              <UploadContainer
-                style={{ cursor: "pointer" }}
-                onClick={() => handleViewImage(match.opponentLogo)}
-              >
-                <h5 style={{ width: "100%", textAlign: "center" }}>
-                  Team Logo
-                </h5>
-                <Icon>
-                  <EyeIcon />
-                </Icon>
-              </UploadContainer>
-            </Info>
-            <Info>
-              <h2>تاريخ المباراة</h2>{" "}
-              <DateContainer>
-                <input value={formatDate(match.date)} />
-              </DateContainer>
-            </Info>
-            <Info style={{ width: "45%" }}>
-              <h2>التوقيت</h2>
-              <Time>
-                <p>{match.minute}</p>
-                <h3>:</h3>
-                <p>{match.hour}</p>
-                <p>{match.ampm}</p>
-              </Time>
-            </Info>{" "}
-          </Content>
-        </Schedule>
+              <Content>
+                <Info style={{ width: "120%" }}>
+                  <h2>اسم الفريق المنافس</h2>
+                  <h4>{match.opponentName}</h4>
+                </Info>
+                <Info>
+                  <h2>لوجو الفريق المنافس</h2>
+                  <UploadContainer
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleViewImage(match.opponentLogo)}
+                  >
+                    <h5 style={{ width: "100%", textAlign: "center" }}>
+                      Team Logo
+                    </h5>
+                    <Icon>
+                      <EyeIcon />
+                    </Icon>
+                  </UploadContainer>
+                </Info>
+                <Info>
+                  <h2>تاريخ المباراة</h2>{" "}
+                  <DateContainer>
+                    <input value={formatDate(match.date)} />
+                  </DateContainer>
+                </Info>
+                <Info style={{ width: "45%" }}>
+                  <h2>التوقيت</h2>
+                  <Time>
+                    <p>{match.minute}</p>
+                    <h3>:</h3>
+                    <p>{match.hour}</p>
+                    <p>{match.ampm}</p>
+                  </Time>
+                </Info>{" "}
+              </Content>
+            </Schedule>
+          ) : (
+            <Schedule>
+              <div></div>
+              <Title>
+                <div></div>
+                <h1>المباراة القادمة</h1>
+                <div className="actions">
+                  <EditButton onClick={() => handleEditMatch(match)}>
+                    <p>تعديل</p>
+                    <Icon>
+                      <EditIcon />
+                    </Icon>
+                  </EditButton>
+                  <DeleteButton onClick={() => handleOpenDialog(match.id)}>
+                    <p>حذف</p>
+                    <Icon>
+                      <DeleteIcon />
+                    </Icon>
+                  </DeleteButton>
+                </div>
+              </Title>
+
+              <Content>
+                <Info style={{ width: "120%" }}>
+                  <h2>اسم الفريق المنافس</h2>
+                  <h4>{match.opponentName}</h4>
+                </Info>
+                <Info>
+                  <h2>لوجو الفريق المنافس</h2>
+                  <UploadContainer
+                    style={{ cursor: "pointer" }}
+                    onClick={() => handleViewImage(match.opponentLogo)}
+                  >
+                    <h5 style={{ width: "100%", textAlign: "center" }}>
+                      Team Logo
+                    </h5>
+                    <Icon>
+                      <EyeIcon />
+                    </Icon>
+                  </UploadContainer>
+                </Info>
+                <Info>
+                  <h2>تاريخ المباراة</h2>{" "}
+                  <DateContainer>
+                    <input value={formatDate(match.date)} />
+                  </DateContainer>
+                </Info>
+                <Info style={{ width: "45%" }}>
+                  <h2>التوقيت</h2>
+                  <Time>
+                    <p>{match.minute}</p>
+                    <h3>:</h3>
+                    <p>{match.hour}</p>
+                    <p>{match.ampm}</p>
+                  </Time>
+                </Info>{" "}
+              </Content>
+            </Schedule>
+          )}
+        </div>
       ))}
 
       <div
@@ -384,7 +537,7 @@ const Profile = () => {
   );
 };
 
-export default Profile;
+export default Matches;
 
 const dialogStyles2 = {
   width: "100%",

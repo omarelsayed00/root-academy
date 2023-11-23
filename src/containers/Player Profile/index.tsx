@@ -79,9 +79,13 @@ const Profile = () => {
   const [teams, setTeams] = useState([]);
 
   useEffect(() => {
-    fetchPlayer();
     fetchTeams();
+    //fetchPlayer();
   }, []);
+
+  useEffect(() => {
+    fetchPlayer();
+  }, [router.query.id]);
 
   const fetchPlayer = async () => {
     setIsLoading(true);
@@ -99,7 +103,7 @@ const Profile = () => {
         setName(data.name);
         setNickname(data.shortName);
         setTeam(data.team);
-        setBirthDate(data.dateOfBirth);
+        setBirthDate(formatToDDMMYYYY(data.dateOfBirth));
         setWeight(data.weight);
         setHeight(data.length);
         setLevel(data.level);
@@ -111,6 +115,7 @@ const Profile = () => {
         setPlayerRating(data.stars);
         setImage(data.profileImage);
         setPositon(data.position);
+        setSelectedTeam(data.team);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -125,12 +130,13 @@ const Profile = () => {
 
   const editPlayer = async () => {
     setIsLoading(true);
+    const team: any = teams.filter((team: any) => team.name === selectedTeam);
     const formData = new FormData();
-    formData.append("_method", "put");
+    formData.append("_method", "Patch");
     formData.append("name", name);
-    formData.append("shortName", nickname);
-    formData.append("team_id", team);
-    formData.append("dateOfBirth", birthDate);
+    formData.append("short_name", nickname);
+    formData.append("team_id", team[0].id);
+    formData.append("date_of_birth", formatToYYYYMMDD(birthDate));
     formData.append("weight", weight);
     formData.append("length", height);
     formData.append("level", level);
@@ -147,7 +153,7 @@ const Profile = () => {
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/players/${id}`, formData, config)
+      .post(`${BASE_URL}/admins/partial-update/players/${id}`, formData, config)
       .then((response) => {
         console.log(response.data);
         fetchPlayer();
@@ -159,6 +165,31 @@ const Profile = () => {
     setEditable1(false);
     setEditable2(false);
     setEditable3(false);
+  };
+
+  const deletePlayer = async () => {
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "Delete");
+    if (id !== undefined) {
+      formData.append(`playerIds[0]`, id.toString());
+    }
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/players/delete`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        router.push("/players");
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+    setOpenDialog(false);
   };
 
   const fetchTeams = async () => {
@@ -186,6 +217,24 @@ const Profile = () => {
     setIsLoading(false);
   };
 
+  const formatToYYYYMMDD = (dateString: String) => {
+    const [day, month, year] = dateString.split("/");
+    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
+      2,
+      "0"
+    )}`;
+    return formattedDate;
+  };
+
+  const formatToDDMMYYYY = (dateString: string) => {
+    const [year, month, day] = dateString.split("-");
+    const formattedDate = `${day.padStart(2, "0")}/${month.padStart(
+      2,
+      "0"
+    )}/${year}`;
+    return formattedDate;
+  };
+
   const handleSelectChange = (event: any) => {
     setSelectedTeam(event.target.value);
   };
@@ -200,11 +249,6 @@ const Profile = () => {
 
   const removeUser = () => {
     handleOpenDialog();
-  };
-
-  const deleteUser = () => {
-    setOpenDialog(false);
-    router.push("/players");
   };
 
   return (
@@ -239,16 +283,11 @@ const Profile = () => {
             readOnly={!editable1}
           />
           <h1>الفريق</h1>
-          <input
-            type="text"
-            value={team}
-            onChange={(e) => setTeam(e.target.value)}
-            readOnly={!editable1}
-          />
           <SelectFilter
             //placeholder="ggg"
             value={selectedTeam}
             onChange={handleSelectChange}
+            disabled={!editable1}
           >
             {teams.map((bus: any, index: any) => (
               <option key={index} value={bus.name}>
@@ -263,7 +302,7 @@ const Profile = () => {
             onChange={(e) => setPositon(e.target.value)}
             readOnly={!editable1}
           />
-          <h1>تاريخ الميلاد</h1>
+          <h1>تاريخ الميلاد (DD/MM/YYYY)</h1>
           <input
             type="text"
             value={birthDate}
@@ -441,17 +480,31 @@ const Profile = () => {
               justifyContent: "center",
             }}
           >
-            هل انت متأكد من حذف المستخدم؟
+            هل انت متأكد من حذف اللاعب؟
           </span>
         </DialogTitle>
 
         <DialogActions style={dialogStyles2}>
-          <Button onClick={deleteUser}>تأكيد</Button>
+          <Button onClick={deletePlayer}>تأكيد</Button>
           <Button2 onClick={handleCloseDialog} autoFocus>
             رجوع
           </Button2>
         </DialogActions>
       </Dialog>
+
+      {openPopup && (
+        <Modal onClose={() => setOpenPopup(false)}>
+          <MovePlayer
+            onClose={() => setOpenPopup(false)}
+            movedId={id}
+            team={team}
+            fetchPlayers={fetchPlayer}
+            currentPlayer={player}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          />
+        </Modal>
+      )}
 
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}

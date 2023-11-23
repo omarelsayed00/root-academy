@@ -68,20 +68,12 @@ const MovePlayer = (props: any) => {
   };
 
   const movePlayer = async () => {
+    props.setIsLoading(true);
+
     const team: any = teams.find((team: any) => team.name === selectedTeam);
     const formData = new FormData();
-    formData.append("_method", "put");
+    formData.append("_method", "Patch");
     formData.append("team_id", team.id);
-    formData.append("name", props.currentPlayer.name);
-    formData.append("weight", props.currentPlayer.weight);
-    formData.append("length", props.currentPlayer.length);
-    formData.append("level", props.currentPlayer.level);
-    formData.append("playerRating", props.currentPlayer.playerRating);
-    formData.append("physical", props.currentPlayer.strength);
-    formData.append("attack", props.currentPlayer.attack);
-    formData.append("defense", props.currentPlayer.defense);
-    formData.append("dribble", props.currentPlayer.skills);
-    formData.append("position", props.currentPlayer.position);
 
     let config = {
       headers: {
@@ -89,7 +81,11 @@ const MovePlayer = (props: any) => {
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/players/${props.movedId}`, formData, config)
+      .post(
+        `${BASE_URL}/admins/partial-update/players/${props.movedId}`,
+        formData,
+        config
+      )
       .then((response) => {
         console.log(response.data);
         props.fetchPlayers();

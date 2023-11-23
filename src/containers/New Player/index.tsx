@@ -50,6 +50,7 @@ import MovePlayer from "@components/Modal/Move Player";
 import UploadIcon from "@icons/Upload";
 import { Backdrop } from "@mui/material";
 import Cookies from "js-cookie";
+import { SelectFilter } from "@containers/Player Profile/styles";
 
 const Profile = () => {
   const router = useRouter();
@@ -73,6 +74,8 @@ const Profile = () => {
   const [defense, setDefense] = useState<any>(0);
   const [skills, setSkills] = useState<any>(0);
   const [averageStrength, setAverageStrength] = useState(0);
+  const [selectedTeam, setSelectedTeam] = useState(".......");
+  const [teams, setTeams] = useState([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const { BASE_URL } = process.env;
@@ -81,13 +84,42 @@ const Profile = () => {
     setAverageStrength(Math.round((strength + attack + defense + skills) / 4));
   }, [strength, attack, defense, skills]);
 
+  useEffect(() => {
+    fetchTeams();
+  }, []);
+
+  const fetchTeams = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/teams`, config)
+      .then((response) => {
+        console.log(response.data.data.date);
+        setTeams(response.data.data.date);
+        /*         setOptions(
+          response.data.data.date
+            .filter((team: any) => team.name !== props.team)
+            .map((team: any) => team.name)
+        ); */
+        //setSelectedBus(response.data.results[0].bus_name);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
   const addPlayer = async () => {
     setIsLoading(true);
     const formData = new FormData();
     formData.append("name", name);
     formData.append("short_name", nickname);
     formData.append("team_id", "1");
-    formData.append("date_of_birth", birthDate);
+    formData.append("date_of_birth", formatToYYYYMMDD(birthDate));
     formData.append("weight", weight);
     formData.append("length", height);
     formData.append("level", level);
@@ -107,7 +139,7 @@ const Profile = () => {
       .post(`${BASE_URL}/admins/players`, formData, config)
       .then((response) => {
         console.log(response.data);
-        //router.push("/players");
+        router.push("/players");
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -128,20 +160,24 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
-  const deleteUser = () => {
-    /*     setMembers((members: any) =>
-      members.filter((member: any) => {
-        return member.id !== deletedId;
-      })
-    ); */
-    setOpenDialog(false);
-    router.push("/players");
-  };
-
   const onImageChange = (event: any) => {
     setViewedImage(URL.createObjectURL(event.target.files[0]));
     setImage(event.target.files[0]);
     setFileName(event.target.files[0].name);
+  };
+
+  const handleSelectChange = (event: any) => {
+    setSelectedTeam(event.target.value);
+  };
+
+  const formatToYYYYMMDD = (dateString: String) => {
+    const [day, month, year] = dateString.split("/");
+    // Ensure that day, month, and year are two digits
+    const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
+      2,
+      "0"
+    )}`;
+    return formattedDate;
   };
 
   return (
@@ -193,12 +229,14 @@ const Profile = () => {
             onChange={(e) => setPositon(e.target.value)}
           />
           <h1>الفريق</h1>
-          <input
-            type="text"
-            value={team}
-            onChange={(e) => setTeam(e.target.value)}
-          />
-          <h1>تاريخ الميلاد</h1>
+          <SelectFilter value={selectedTeam} onChange={handleSelectChange}>
+            {teams.map((bus: any, index: any) => (
+              <option key={index} value={bus.name}>
+                {bus.name}
+              </option>
+            ))}
+          </SelectFilter>
+          <h1>تاريخ الميلاد (DD/MM/YYYY)</h1>
           <input
             type="text"
             value={birthDate}

@@ -26,6 +26,13 @@ export const Schedule = styled.div`
     line-height: 28px;
     color: var(--primary-color);
   }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    gap: 8px;
+  }
 `;
 
 export const Content = styled.div`
@@ -255,5 +262,23 @@ export const Button2 = styled.button`
 
   :hover {
     opacity: 0.85;
+  }
+`;
+
+export const EditButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  font-size: 14px;
+  text-align: center;
+  color: white;
+  background: #4bad60;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+
+  :hover {
+    opacity: 0.9;
   }
 `;

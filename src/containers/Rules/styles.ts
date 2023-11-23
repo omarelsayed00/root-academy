@@ -125,6 +125,10 @@ export const Title = styled.div`
     border-radius: 8px;
     cursor: pointer;
   }
+
+  .closeIcon {
+    background-color: red;
+  }
 `;
 
 export const TitleInput = styled.textarea`

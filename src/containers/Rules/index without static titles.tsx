@@ -28,7 +28,6 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import { isFormElement } from "react-router-dom/dist/dom";
 import { Backdrop } from "@mui/material";
-import CloseIcon from "@icons/Close";
 
 const About = () => {
   const router = useRouter();
@@ -42,6 +41,7 @@ const About = () => {
   const [title, setTitle] = useState(
     "لائحة ونظام أكاديمية ROOT لتعليم اساسيات كرة القدم :-"
   );
+
   const [title2, setTitle2] = useState(
     "- تعلن أكاديمية ROOT عن استقبال اللاعبين لتأسيس وتنمية كرة القدم"
   );
@@ -55,9 +55,15 @@ const About = () => {
     "- النظام المالى للأكاديمية :-"
   );
 
-  const [content1, setContent1] = useState("");
-  const [content2, setContent2] = useState("");
-  const [content3, setContent3] = useState("");
+  const [content1, setContent1] = useState(
+    "1- يتم تسليم اللاعب شنطة ملابس خاصة به يجب أن يحضر اللاعب بكامل الملابس (الطقمين) وإن لم يرتدي اللاعب الطقم كامل لن ينضم للتمرين.\n 2- تبدأ الأكاديمية التمرين في ميعاد معين يجب على كل اللاعبين التواجد في الميعاد وعدم التأخير نهائياً. \n 3- يوجد لكل لاعب بروفايل خاص به داخل الأكاديمية فعليه متابعة البروفايل الخاص به لمعرفة كل ما هو جديد بالنسبة له. \n 4- يوجد أيام تمرين للأكاديمية في الأسبوع يجب على كل اللاعبين الحضور خلال هذه الأيام وعند الغياب من التمرين يجب الاستئذان أولاً وعند غياب اللاعب شهر متواصل يلغى البروفايل الخاص به من الاكاديمية. \n 5- يوجد بالأكاديمية مدير اداري عند وجود اي سؤال او استفسار متعلق بغير كرة القدم داخل التدريب يجب التعامل مع الاداري وليس المدير الفني. \n 6- احترام اللاعبين داخل التمرين وعدم التلفظ بأي لفظ خارج وعند حدوث ذلك يعتبر اللاعب مفصول من الأكاديمية نهائياً."
+  );
+  const [content2, setContent2] = useState(
+    "1- يوجد مقر رسمي للأكاديمية وهو مقر شركة ROOT الرئيسي وهي المسؤولة عن الأكاديمية.  \n 2- على المتقدم للأكاديمية أن يتواصل للتقديم من خلال مقر الشركة او من خلال التقديم أونلاين.  \n 3- يوجد 3 فئات للأكاديمية هي A,B,C يضاف كل لاعب الى كل فئة بناءًا على مستوى كل لاعب أو من خلال استيعاب اللاعب للتمرين المقدم له وتحسن المستوى."
+  );
+  const [content3, setContent3] = useState(
+    "1- على كل اللاعبين دفع المبلغ الشهري في الميعاد المحدد لكل لاعب.  \n 2- يوجد مكافآت للاعبين المتميزين داخل الاكاديمية. "
+  );
 
   useEffect(() => {
     fetchRules();
@@ -75,36 +81,12 @@ const About = () => {
       .then((response) => {
         console.log(response.data.data);
         setRules(response.data.data);
-        //setTitleBehav(response.data.data[0].ruleCategory.name);
-        setContent1(response.data.data[0].content);
-        setContent2(response.data.data[1].content);
-        setContent3(response.data.data[2].content);
-      })
-      .catch((error) => {
-        console.log(error.response);
-      });
-    setIsLoading(false);
-  };
-
-  const editRules = async (content: any, id: any) => {
-    setIsLoading(true);
-    const formData = new FormData();
-    formData.append("_method", "put");
-    formData.append("content", content);
-    let config = {
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("accessToken"),
-      },
-    };
-    await axios
-      .post(`${BASE_URL}/admins/rules/${id}`, formData, config)
-      .then((response) => {
-        console.log(response.data.data);
-        setRules(response.data.data);
-        //setTitleBehav(response.data.data[0].ruleCategory.name);
-        setContent1(response.data.data[0].content);
-        setContent2(response.data.data[1].content);
-        setContent3(response.data.data[2].content);
+        /*         setOptions(
+          response.data.data.date
+            .filter((team: any) => team.name !== props.team)
+            .map((team: any) => team.name)
+        ); */
+        //setSelectedBus(response.data.results[0].bus_name);
       })
       .catch((error) => {
         console.log(error.response);
@@ -116,10 +98,23 @@ const About = () => {
     setIsEditing(true);
   };
 
-  const handleCloseEdit = () => {
-    setIsEditing(false);
+  const handleTitleChange = (event: any) => {
+    setTitle(event.target.value);
   };
 
+  const handleTitle2Change = (event: any) => {
+    setTitle2(event.target.value);
+  };
+
+  const handleTitleBehavChange = (event: any) => {
+    setTitleBehav(event.target.value);
+  };
+  const handleTitleManagChange = (event: any) => {
+    setTitleManage(event.target.value);
+  };
+  const handleTitleFinaincChange = (event: any) => {
+    setTitleFinanc(event.target.value);
+  };
   const handleContentChange1 = (event: any) => {
     setContent1(event.target.value);
   };
@@ -131,11 +126,24 @@ const About = () => {
   };
 
   const handleSaveChangesButtonClick = () => {
-    editRules(content1, 1);
-    editRules(content2, 2);
-    editRules(content3, 3);
-    fetchRules();
     setIsEditing(false);
+  };
+
+  const handleCancelEditButtonClick = () => {
+    setIsEditing(false);
+    //setContent("");
+    setTitle("لائحة ونظام أكاديمية ROOT لتعليم اساسيات كرة القدم :-");
+    setTitle2(
+      "- تعلن أكاديمية ROOT عن استقبال اللاعبين لتأسيس وتنمية كرة القدم"
+    );
+  };
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   return (
@@ -151,28 +159,34 @@ const About = () => {
                 paddingTop: "10px",
               }}
             >
-              <h1>{title}</h1>
-              <h2>{title2}</h2>
+              <TitleInput value={title} onChange={handleTitleChange} />
+              <TitleInput2 value={title2} onChange={handleTitle2Change} />
             </div>
-            <button className="closeIcon" onClick={handleCloseEdit}>
+            <button onClick={handleEditButtonClick}>
               <Icon>
-                <CloseIcon />
+                <EditIcon2 />
               </Icon>
             </button>
           </Title>
           <Text>
-            <h1>{titleBehav}</h1>
-
+            <SubTitleInput
+              value={titleBehav}
+              onChange={handleTitleBehavChange}
+            />
             <TextInput value={content1} onChange={handleContentChange1} />
-            <h1>{titleManage}</h1>
-
+            <SubTitleInput
+              value={titleManage}
+              onChange={handleTitleManagChange}
+            />
             <TextInput
               style={{ height: "150px" }}
               value={content2}
               onChange={handleContentChange2}
             />
-            <h1>{titleFianc}</h1>
-
+            <SubTitleInput
+              value={titleFianc}
+              onChange={handleTitleFinaincChange}
+            />
             <TextInput
               style={{ height: "150px" }}
               value={content3}
