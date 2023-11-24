@@ -40,6 +40,7 @@ import EyeIcon from "@icons/Eye";
 import ViewImageModal from "@components/Modal/View Image";
 import Modal from "@components/Modal";
 import EditIcon from "@icons/Edit";
+import { SelectFilter } from "@containers/Player Profile/styles";
 
 const Matches = () => {
   const router = useRouter();
@@ -47,10 +48,14 @@ const Matches = () => {
   const [matches, setMatches] = useState([]);
   const [logo, setLogo] = useState("");
   const [fileName, setFileName] = useState("");
-  const [team, setTeam] = useState("");
+  const [opponentName, setOpponentName] = useState("");
   const [hour, setHour] = useState("");
   const [minute, setMinute] = useState("");
   const [ampm, setAmpm] = useState("م");
+
+  const [ehour, setEHour] = useState("");
+  const [eminute, setEMinute] = useState("");
+  const [eampm, setEAmpm] = useState("م");
 
   const [day, setDay] = useState<number>();
   const [month, setMonth] = useState<number>();
@@ -70,6 +75,7 @@ const Matches = () => {
   /*   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
   const input3Ref = useRef(null); */
+  const [selectedTeam, setSelectedTeam] = useState(".......");
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -79,6 +85,7 @@ const Matches = () => {
 
   useEffect(() => {
     fetchMatches();
+    fetchTeams();
   }, [page]);
 
   useEffect(() => {
@@ -133,11 +140,13 @@ const Matches = () => {
 
   const addMatch = async () => {
     setIsLoading(true);
+    const team: any = teams.filter((team: any) => team.name === selectedTeam);
     const formData = new FormData();
-    formData.append("opponent_name", editableOpponentName);
-    formData.append("opponent_logo", editableLogo);
-    formData.append("date", editableDate);
-    formData.append("time", editableTime);
+    formData.append("opponent_name", opponentName);
+    formData.append("opponent_logo", logo);
+    formData.append("team_id", team[0].id);
+    formData.append("date", formatDateToYYYYMMDD(selectedDate));
+    formData.append("time", generate24HourTime(hour, minute, ampm));
     formData.append("game_status", "unPlayed");
     /// EDIT GAME STATUS
 
@@ -157,7 +166,7 @@ const Matches = () => {
         console.log(error.response);
       });
     setIsLoading(false);
-    setTeam("");
+    setOpponentName("");
     setFileName("");
     setDay(undefined);
     setMonth(undefined);
@@ -230,7 +239,11 @@ const Matches = () => {
   const handleEditMatch = (match: any) => {
     setEditable(true);
     setEditableMatch(match);
+    convertTo12HourTimeEdit(match.time);
     setEditableId(match.id);
+    setEditableOpponentName(match.opponentName);
+    setEditableDate(match.date);
+    setEditableTime(match.time);
   };
 
   const handlePreviousPage = () => {
@@ -259,6 +272,17 @@ const Matches = () => {
     return `${day}/${month}/${year}`;
   };
 
+  const formatDateToYYYYMMDD = (dateString: Date) => {
+    const inputDate = new Date(dateString);
+
+    const year = inputDate.getFullYear();
+    const month = (inputDate.getMonth() + 1).toString().padStart(2, "0");
+    const day = inputDate.getDate().toString().padStart(2, "0");
+
+    const formattedDate = `${year}-${month}-${day}`;
+    return formattedDate;
+  };
+
   const handleKeyDown = (e: any) => {
     if (
       e.key === "ArrowUp" ||
@@ -271,14 +295,102 @@ const Matches = () => {
     }
   };
 
+  const handleKeyDownEdit = (e: any) => {
+    if (
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "ArrowRight" ||
+      e.key === "ArrowLeft"
+    ) {
+      e.preventDefault(); // Prevents the cursor from moving in the input field
+      setEAmpm((prevAmpm) => (prevAmpm === "ص" ? "م" : "ص"));
+    }
+  };
+
+  const generate24HourTime = (hour: any, minute: any, ampm: any) => {
+    let hour24 = parseInt(hour, 10);
+
+    if (ampm === "م" && hour !== "12") {
+      hour24 += 12;
+    } else if (ampm === "ص" && hour === "12") {
+      hour24 = 0;
+    }
+    const formattedTime = `${hour24.toString().padStart(2, "0")}:${minute
+      .toString()
+      .padStart(2, "0")}`;
+    return formattedTime;
+  };
+
+  const convertTo12HourTime = (time: any) => {
+    const [hour, minute] = time.split(":");
+    let hour12 = parseInt(hour, 10);
+    let period = "ص";
+
+    if (hour12 >= 12) {
+      period = "م";
+      if (hour12 > 12) {
+        hour12 -= 12;
+      }
+    }
+    const formattedTime = `${hour12
+      .toString()
+      .padStart(2, "0")}:${minute.padStart(2, "0")} ${period}`;
+
+    return (
+      <Time>
+        <p>{minute}</p>
+        <h3>:</h3>
+        <p>{hour12}</p>
+        <p>{period}</p>
+      </Time>
+    );
+  };
+
+  const convertTo12HourTimeEdit = (time: any) => {
+    const [hour, minute] = time.split(":");
+    let hour12 = parseInt(hour, 10);
+    let period = "ص";
+
+    if (hour12 >= 12) {
+      period = "م";
+      if (hour12 > 12) {
+        hour12 -= 12;
+      }
+    }
+    const formattedTime = `${hour12
+      .toString()
+      .padStart(2, "0")}:${minute.padStart(2, "0")} ${period}`;
+
+    setEHour(hour12.toString());
+    setEMinute(minute);
+    setEAmpm(period);
+  };
+
+  const handleSelectChange = (event: any) => {
+    setSelectedTeam(event.target.value);
+  };
+
   return (
     <Container>
       <Schedule>
         <h1>المباراة القادمة</h1>
         <Content>
+          <Info>
+            <h2>اسم الفريق</h2>
+            <SelectFilter value={selectedTeam} onChange={handleSelectChange}>
+              {teams.map((bus: any, index: any) => (
+                <option key={index} value={bus.name}>
+                  {bus.name}
+                </option>
+              ))}
+            </SelectFilter>
+          </Info>
           <Info style={{ width: "120%" }}>
             <h2>اسم الفريق المنافس</h2>
-            <input value={team} onChange={(e) => setTeam(e.target.value)} />
+            <input
+              value={opponentName}
+              onChange={(e) => setOpponentName(e.target.value)}
+            />
           </Info>
           <Info>
             <h2>لوجو الفريق المنافس</h2>
@@ -326,6 +438,7 @@ const Matches = () => {
               <input
                 type="number"
                 value={minute}
+                max={60}
                 onChange={(e) => {
                   const i = e.target.value;
                   if (/^\d{0,2}$/.test(i)) {
@@ -337,6 +450,7 @@ const Matches = () => {
               <input
                 type="number"
                 value={hour}
+                max={12}
                 onChange={(e) => {
                   const i = e.target.value;
                   if (/^\d{0,2}$/.test(i)) {
@@ -358,7 +472,7 @@ const Matches = () => {
       </Schedule>
       {matches.map((match: any, idx: number) => (
         <div key={`${idx}`}>
-          {editable && editableId == match.id ? (
+          {editable && match.opponentName == "Palmerias" ? (
             <Schedule>
               <div></div>
               <Title>
@@ -407,12 +521,37 @@ const Matches = () => {
                 </Info>
                 <Info style={{ width: "45%" }}>
                   <h2>التوقيت</h2>
-                  <Time>
-                    <p>{match.minute}</p>
+                  <TimeInput>
+                    <input
+                      type="number"
+                      value={eminute}
+                      max={60}
+                      onChange={(e) => {
+                        const i = e.target.value;
+                        if (/^\d{0,2}$/.test(i)) {
+                          setEMinute(i);
+                        }
+                      }}
+                    />
                     <h3>:</h3>
-                    <p>{match.hour}</p>
-                    <p>{match.ampm}</p>
-                  </Time>
+                    <input
+                      type="number"
+                      value={ehour}
+                      max={12}
+                      onChange={(e) => {
+                        const i = e.target.value;
+                        if (/^\d{0,2}$/.test(i)) {
+                          setEHour(i);
+                        }
+                      }}
+                    />
+                    <input
+                      type="text"
+                      value={eampm}
+                      maxLength={1}
+                      onKeyDown={handleKeyDownEdit}
+                    />
+                  </TimeInput>
                 </Info>{" "}
               </Content>
             </Schedule>
@@ -465,12 +604,7 @@ const Matches = () => {
                 </Info>
                 <Info style={{ width: "45%" }}>
                   <h2>التوقيت</h2>
-                  <Time>
-                    <p>{match.minute}</p>
-                    <h3>:</h3>
-                    <p>{match.hour}</p>
-                    <p>{match.ampm}</p>
-                  </Time>
+                  {convertTo12HourTime(match.time)}
                 </Info>{" "}
               </Content>
             </Schedule>

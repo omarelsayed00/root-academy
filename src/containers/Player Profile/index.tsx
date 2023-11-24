@@ -147,6 +147,8 @@ const Profile = () => {
     formData.append("defense", defense);
     formData.append("dribble", skills);
     formData.append("position", position);
+    formData.append("stars", playerRating);
+
     let config = {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("accessToken"),

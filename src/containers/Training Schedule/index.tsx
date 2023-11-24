@@ -34,6 +34,7 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogTitle from "@mui/material/DialogTitle";
 import { Backdrop } from "@mui/material";
 import Cookies from "js-cookie";
+import { SelectFilter } from "@containers/Player Profile/styles";
 
 const optionsData = [
   { label: "السبت", value: "0" },
@@ -44,6 +45,9 @@ const optionsData = [
   { label: "الخميس", value: "6" },
   { label: "الجمعة", value: "7" },
 ];
+
+const days = ["اليوم الأول", "اليوم الثاني", "اليوم الثالث"];
+
 const Profile = () => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
@@ -52,7 +56,7 @@ const Profile = () => {
       return option != props.team;
     }) */
   );
-  const [trainings, setTrainings] = useState(trainingsData);
+  const [trainings, setTrainings] = useState([]);
   const [team, setTeam] = useState("");
   const [hour1, setHour1] = useState("");
   const [minute1, setMinute1] = useState("");
@@ -85,10 +89,14 @@ const Profile = () => {
   const [deletedId, setDeletedId] = useState(0);
   const [editingTraining, setEditingTraining] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const [teams, setTeams] = useState([]);
+  const [selectedTeam, setSelectedTeam] = useState(".......");
+
   const { BASE_URL } = process.env;
 
   useEffect(() => {
     fetchTrainings();
+    fetchTeams();
   }, []);
 
   const fetchTrainings = async () => {
@@ -99,10 +107,10 @@ const Profile = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/players`, config)
+      .get(`${BASE_URL}/admins/trainings`, config)
       .then((response) => {
         console.log(response.data);
-        setTrainings(response.data.data.date);
+        setTrainings(response.data.data);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -114,6 +122,26 @@ const Profile = () => {
       });
     setIsLoading(false);
   };
+
+  const fetchTeams = async () => {
+    setIsLoading(true);
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .get(`${BASE_URL}/admins/teams`, config)
+      .then((response) => {
+        console.log(response.data.data.date);
+        setTeams(response.data.data.date);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setIsLoading(false);
+  };
+
   const handleSelectChange1 = (event: any) => {
     setDay1(event.target.value);
   };
@@ -226,7 +254,7 @@ const Profile = () => {
 
   const deleteTraining = () => {
     setTrainings((users) =>
-      users.filter((user) => {
+      users.filter((user: any) => {
         return user.id !== deletedId;
       })
     );
@@ -251,8 +279,6 @@ const Profile = () => {
       am3: ampm3,
     };
     setTeam("");
-
-    setTrainings([...trainings, newTraining]);
   };
 
   const editTraining = (id: any, training: any) => {
@@ -294,9 +320,14 @@ const Profile = () => {
       }
       return training;
     });
-    setTrainings(editedTrainings);
+    //setTrainings(editedTrainings);
     setEditingId(0);
   };
+
+  const handleSelectChange = (event: any) => {
+    setSelectedTeam(event.target.value);
+  };
+
   return (
     <Container>
       <Schedule>
@@ -308,11 +339,16 @@ const Profile = () => {
               justifyContent: "center",
             }}
           >
-            <input
-              placeholder="اسم الفريق"
-              value={team}
-              onChange={(e) => setTeam(e.target.value)}
-            />
+            <Info>
+              <h2>اسم الفريق</h2>
+              <SelectFilter value={selectedTeam} onChange={handleSelectChange}>
+                {teams.map((bus: any, index: any) => (
+                  <option key={index} value={bus.name}>
+                    {bus.name}
+                  </option>
+                ))}
+              </SelectFilter>
+            </Info>
           </div>
         </Title>
         <Content>
@@ -608,7 +644,7 @@ const Profile = () => {
               </Title>
               <Content>
                 <Info>
-                  <h2>اختار اليوم الأول</h2>
+                  <h2>اليوم الأول</h2>
                   <h4>{training.day1}</h4>
                 </Info>{" "}
                 <Info>
@@ -621,7 +657,7 @@ const Profile = () => {
                   </Time>
                 </Info>{" "}
                 <Info>
-                  <h2>اختار اليوم الثاني</h2>
+                  <h2>اليوم الثاني</h2>
                   <h4>{training.day2}</h4>
                 </Info>
                 <Info>
@@ -634,7 +670,7 @@ const Profile = () => {
                   </Time>
                 </Info>
                 <Info>
-                  <h2>اختار اليوم الثالث</h2>
+                  <h2>اليوم الثالث</h2>
                   <h4>{training.day3}</h4>
                 </Info>
                 <Info>

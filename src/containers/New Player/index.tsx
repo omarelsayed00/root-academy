@@ -115,10 +115,11 @@ const Profile = () => {
 
   const addPlayer = async () => {
     setIsLoading(true);
+    const team: any = teams.filter((team: any) => team.name === selectedTeam);
     const formData = new FormData();
     formData.append("name", name);
     formData.append("short_name", nickname);
-    formData.append("team_id", "1");
+    formData.append("team_id", team[0].id);
     formData.append("date_of_birth", formatToYYYYMMDD(birthDate));
     formData.append("weight", weight);
     formData.append("length", height);
@@ -130,6 +131,8 @@ const Profile = () => {
     formData.append("defense", defense);
     formData.append("dribble", skills);
     formData.append("position", position);
+    formData.append("stars", playerRating);
+
     let config = {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("accessToken"),

@@ -37,7 +37,7 @@ const SelectTableComponent = (props) => {
 
     let config = {
       headers: {
-        Authorization: `Bearer ${localStorage.getItem("accesToken")}`,
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     };
     await axios

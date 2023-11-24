@@ -41,33 +41,57 @@ const SelectTableComponent = (props) => {
 
   const router = useRouter();
 
-  const deletePlayers = () => {
-    props.setUsers(
-      props.users.filter(
-        (x) => !SelectedList.filter((y) => y.id === x.id).length
-      )
-    );
+  const deletePlayers = async () => {
     setOpenDialog(false);
-  };
+    props.setIsLoading(true);
+    const usersIds = SelectedList.map((obj) => obj.id);
+    const formData = new FormData();
+    formData.append("_method", "Delete");
+    for (let i = 0; i < usersIds.length; i++) {
+      formData.append(`playerIds[${i}]`, usersIds[i]);
+    }
 
-  const deletePlayer = async () => {
-    setIsLoading(true);
     let config = {
       headers: {
-        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
       },
     };
     await axios
-      .delete(`${BASE_URL}/admins/players/${deletedId}`, config)
+      .post(`${BASE_URL}/admins/players/delete`, formData, config)
       .then((response) => {
         console.log(response.data);
-        props.fetchPlayers();
       })
       .catch((error) => {
+        console.log(error);
         console.log(error.response);
       });
-    setIsLoading(false);
+
+    props.fetchPlayers();
+  };
+
+  const deletePlayer = async () => {
     setOpenDialog2(false);
+    props.setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "Delete");
+    formData.append(`playerIds[0}]`, deletedId);
+
+    let config = {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/players/delete`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+        console.log(error.response);
+      });
+
+    props.fetchPlayers();
   };
 
   const handleEditUser = (id) => {
@@ -105,7 +129,6 @@ const SelectTableComponent = (props) => {
     // Check/ UnCheck All Items
     tempList.map((user) => (user.selected = e.target.checked));
     setMasterChecked(e.target.checked);
-    props.setUsers(tempList);
     setSelectedList(props.users.filter((e) => e.selected));
   };
 
@@ -124,7 +147,6 @@ const SelectTableComponent = (props) => {
     const totalCheckedItems = tempList.filter((e) => e.selected).length;
 
     setMasterChecked(totalItems === totalCheckedItems);
-    props.setUsers(tempList);
     setSelectedList(props.users.filter((e) => e.selected));
   };
 
@@ -289,7 +311,7 @@ const SelectTableComponent = (props) => {
               justifyContent: "center",
             }}
           >
-            هل انت متأكد من حذف المستخدم؟
+            هل انت متأكد من حذف اللاعب؟
           </span>
         </DialogTitle>
 
