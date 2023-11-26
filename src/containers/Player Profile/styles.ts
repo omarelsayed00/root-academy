@@ -167,14 +167,15 @@ export const HalfCircle = styled.div`
   }
 `;
 
-export const Rating = styled.div<{ editable: boolean }>`
+export const Rating = styled.div`
   display: flex;
   align-items: center;
   width: 100%;
-  justify-content: space-between;
+  justify-content: center;
   background-color: white;
   border-radius: 12px;
   padding: 12px;
+  gap: 24px;
 
   h1 {
     font-size: 24px;
@@ -194,12 +195,6 @@ export const Rating = styled.div<{ editable: boolean }>`
     text-align: center;
     border: 1px solid black;
     direction: ltr;
-    ${({ editable }) =>
-      editable
-        ? css``
-        : css`
-            border: none;
-          `};
   }
   button {
     border: none;
@@ -363,10 +358,10 @@ export const SelectFilter = styled.select`
   flex: 1;
   display: flex;
   justify-content: center;
-  padding: 2px 12px;
-  font-size: calc(0.7vw + 7px);
+  padding: 1px 12px;
+  font-size: calc(0.7vw + 6px);
   border-radius: 7px;
-  background-color: #ededed;
+  background-color: #f2f2f7;
   cursor: pointer;
   border: none;
   border-left: 0.5vw solid transparent;

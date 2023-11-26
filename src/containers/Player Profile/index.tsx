@@ -46,6 +46,7 @@ import {
   StatsCard,
 } from "@containers/New Player/styles";
 import Cookies from "js-cookie";
+import RatingStars from "@components/Rating";
 
 const Profile = () => {
   const router = useRouter();
@@ -155,7 +156,7 @@ const Profile = () => {
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/partial-update/players/${id}`, formData, config)
+      .post(`${BASE_URL}/admins/players/${id}`, formData, config)
       .then((response) => {
         console.log(response.data);
         fetchPlayer();
@@ -335,28 +336,9 @@ const Profile = () => {
         </User>
       </Column>
       <Main>
-        <Rating editable={editable2}>
-          <h1>تقييم اللاعب</h1>
-          <div>
-            <input
-              type="text"
-              value={playerRating}
-              onChange={(e) => setPlayerRating(e.target.value)}
-              readOnly={!editable2}
-            />
-            <Icon>
-              <RatingIcon />
-            </Icon>
-          </div>
-          {!editable2 ? (
-            <button onClick={() => setEditable2(true)}>
-              <Icon>
-                <EditPlayerIcon />
-              </Icon>
-            </button>
-          ) : (
-            <Button4 onClick={editPlayer}>حفظ</Button4>
-          )}
+        <Rating>
+          <h1>تقييم اللاعب : </h1>
+          <RatingStars rating={parseInt(playerRating)} />
         </Rating>
         <Card>
           <CardContent>

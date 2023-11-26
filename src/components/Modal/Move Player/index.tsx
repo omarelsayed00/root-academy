@@ -35,7 +35,6 @@ const MovePlayer = (props: any) => {
   const [selectedTeam, setSelectedTeam] = useState(".......");
   const [teams, setTeams] = useState([]);
   const [options, setOptions] = useState([]);
-
   const { BASE_URL } = process.env;
 
   useEffect(() => {
@@ -69,7 +68,7 @@ const MovePlayer = (props: any) => {
 
   const movePlayer = async () => {
     props.setIsLoading(true);
-
+    props.onClose();
     const team: any = teams.find((team: any) => team.name === selectedTeam);
     const formData = new FormData();
     formData.append("_method", "Patch");
@@ -88,12 +87,13 @@ const MovePlayer = (props: any) => {
       )
       .then((response) => {
         console.log(response.data);
+        props.setIsLoading(false);
         props.fetchPlayers();
       })
       .catch((error) => {
         console.log(error.response);
       });
-    props.onClose();
+    //props.setIsLoading(false);
   };
 
   return (

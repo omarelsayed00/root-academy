@@ -41,7 +41,9 @@ export const Title = styled.div`
   }
 
   h1 {
-    padding-right: 8%;
+    display: flex;
+    //flex: 1;
+    justify-content: center;
   }
 
   input {
@@ -58,9 +60,16 @@ export const Title = styled.div`
 export const Content = styled.div`
   display: flex;
   align-items: center;
-  gap: 46px;
-  width: 85%;
-  justify-content: space-between;
+  gap: 72px;
+  width: 100%;
+  justify-content: center;
+  flex-wrap: wrap;
+`;
+
+export const Row = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 48px;
 `;
 
 export const Info = styled.div`
@@ -108,17 +117,34 @@ export const Time = styled.div`
   }
 `;
 
-export const Button = styled.div`
-  width: 300px;
-  padding: 12px;
+export const Button = styled.button`
+  padding: 12px 48px;
   font-size: 20px;
   font-weight: 600;
   text-align: center;
   color: white;
   background: var(--primary-color);
   border-radius: 20px;
-  cursor: pointer;
+  cursor: pointer;\
+  border:none;
 
+  :hover {
+    opacity: 0.9;
+  }
+`;
+
+export const AddButton = styled.button`
+  padding: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  text-align: center;
+  color: white;
+  background: var(--primary-color);
+  border-radius: 20px;
+  cursor: pointer;\
+  border:none;
+  display: inline-block;
+  white-space: nowrap;
   :hover {
     opacity: 0.9;
   }

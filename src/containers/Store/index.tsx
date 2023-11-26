@@ -41,7 +41,8 @@ const Profile = () => {
   const router = useRouter();
   const [openPopup2, setOpenPopup2] = useState<boolean>(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [products, setProducts] = useState(productsData);
+  const [products, setProducts] = useState([]);
+  const [filteredList, setFilteredList] = useState([]);
   const [image, setImage] = useState("");
   const [fileName, setFileName] = useState("");
   const [name, setName] = useState("");
@@ -73,6 +74,7 @@ const Profile = () => {
         console.log(response.data.data);
         setLastPage(response.data.meta.last_page);
         setProducts(response.data.data);
+        setFilteredList(response.data.data);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -130,9 +132,9 @@ const Profile = () => {
   const filterData = (value: any) => {
     const lowerCaseValue = value.toLowerCase().trim();
     if (!lowerCaseValue) {
-      setProducts(productsData);
+      setFilteredList(products);
     } else {
-      const filteredData: any = productsData.filter((item: any) => {
+      const filteredData: any = products.filter((item: any) => {
         return Object.keys(item).some((key) => {
           return /* excludeColumns.includes(key) ? false : */ item[key]
             .toString()
@@ -140,7 +142,7 @@ const Profile = () => {
             .includes(lowerCaseValue);
         });
       });
-      setProducts(filteredData);
+      setFilteredList(filteredData);
     }
   };
 
@@ -201,7 +203,11 @@ const Profile = () => {
           </Info>
           <Info style={{ width: "150%" }}>
             <h2>SKU</h2>
-            <input value={sku} onChange={(e) => setSku(e.target.value)} />
+            <input
+              type="number"
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+            />
           </Info>
 
           <Info>
@@ -252,7 +258,7 @@ const Profile = () => {
         />
       </Input>
       <Products>
-        {products.map((product: any, idx: number) => (
+        {filteredList.map((product: any, idx: number) => (
           <Product key={`${idx}`}>
             <ProductContent bk={product.image}>
               <Title>

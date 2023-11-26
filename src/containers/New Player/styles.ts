@@ -146,6 +146,7 @@ export const Column = styled.div`
   border-radius: 12px;
   height: 100%;
   padding: 12px 0px;
+  overflow-y: scroll;
   h2 {
     height: 2px;
     border-top: 1.5px solid #bebebe;

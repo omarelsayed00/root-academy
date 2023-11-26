@@ -28,7 +28,8 @@ const EditProductForm = (props: any) => {
   const [product, setPoduct] = useState(props.product);
   const [name, setName] = useState(product.name);
   const [price, setPrice] = useState(product.price);
-  const [image, setImage] = useState(product.image);
+  const [viewedImage, setViewedImage] = useState(product.image);
+  const [image, setImage] = useState();
   const [fileName, setFileName] = useState("");
   const { BASE_URL } = process.env;
 
@@ -39,10 +40,10 @@ const EditProductForm = (props: any) => {
   const editProduct = async () => {
     props.setIsLoading(true);
     const formData = new FormData();
-    formData.append("_method", "put");
+    formData.append("_method", "PUT");
     formData.append("name", name);
     formData.append("price", price);
-    formData.append("image", image);
+    image && formData.append("image", image);
     let config = {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("accessToken"),
@@ -64,7 +65,8 @@ const EditProductForm = (props: any) => {
   const onImageChange = (event: any) => {
     if (event.target.files && event.target.files[0]) {
       setFileName(event.target.files[0].name);
-      setImage(URL.createObjectURL(event.target.files[0]));
+      setImage(event.target.files[0]);
+      setViewedImage(URL.createObjectURL(event.target.files[0]));
     }
   };
 
@@ -121,7 +123,7 @@ const EditProductForm = (props: any) => {
               </InputControl>
             </Details>
             <ImageContainer>
-              {image && <img src={image} alt="Product Image" />}
+              {viewedImage && <img src={viewedImage} alt="Product Image" />}
               <p>{fileName}</p>
             </ImageContainer>
           </Content>

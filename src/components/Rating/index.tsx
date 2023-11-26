@@ -37,7 +37,7 @@ const Star = ({ variant }: { variant: "filled" | "empty" | "half" }) => {
   );
 };
 
-const Rating = ({ rating, max = 5 }: { rating: number; max?: number }) => {
+const RatingStars = ({ rating, max = 5 }: { rating: number; max?: number }) => {
   return (
     <div className="flex items-center bg-white">
       {Array.from({ length: Math.floor(rating) }, (_, i) => (
@@ -51,4 +51,4 @@ const Rating = ({ rating, max = 5 }: { rating: number; max?: number }) => {
   );
 };
 
-export default Rating;
+export default RatingStars;

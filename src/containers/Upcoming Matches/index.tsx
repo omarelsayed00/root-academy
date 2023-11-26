@@ -16,6 +16,7 @@ import {
   Title,
   Upload,
   UploadContainer,
+  SelectFilter,
 } from "./styles";
 import axios from "axios";
 import AuthContext from "src/context/AuthContext";
@@ -40,7 +41,6 @@ import EyeIcon from "@icons/Eye";
 import ViewImageModal from "@components/Modal/View Image";
 import Modal from "@components/Modal";
 import EditIcon from "@icons/Edit";
-import { SelectFilter } from "@containers/Player Profile/styles";
 
 const Matches = () => {
   const router = useRouter();
@@ -48,6 +48,8 @@ const Matches = () => {
   const [matches, setMatches] = useState([]);
   const [logo, setLogo] = useState("");
   const [fileName, setFileName] = useState("");
+  const [eFileName, setEFileName] = useState("");
+  const [eLogo, setELogo] = useState();
   const [opponentName, setOpponentName] = useState("");
   const [hour, setHour] = useState("");
   const [minute, setMinute] = useState("");
@@ -67,15 +69,17 @@ const Matches = () => {
   const [editable, setEditable] = useState(false);
   const [editableMatch, setEditableMatch] = useState(false);
   const [editableOpponentName, setEditableOpponentName] = useState("");
-  const [editableDate, setEditableDate] = useState("");
+  const [editableDate, setEditableDate] = useState<Date>(new Date());
   const [editableTime, setEditableTime] = useState("");
   const [editableLogo, setEditableLogo] = useState("");
   const [editableId, setEditableId] = useState("");
+  const [editableTeam, setEditableTeam] = useState("");
 
   /*   const input1Ref = useRef(null);
   const input2Ref = useRef(null);
   const input3Ref = useRef(null); */
   const [selectedTeam, setSelectedTeam] = useState(".......");
+  const [selectedETeam, setESelectedTeam] = useState(".......");
 
   const [page, setPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
@@ -100,7 +104,7 @@ const Matches = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/games`, config)
+      .get(`${BASE_URL}/admins/games?page=${page}`, config)
       .then((response) => {
         console.log(response.data);
         setLastPage(response.data.meta.last_page);
@@ -177,19 +181,26 @@ const Matches = () => {
 
   const editMatch = async () => {
     setIsLoading(true);
+    const team: any = teams.filter((team: any) => team.name === selectedETeam);
+
     const formData = new FormData();
     formData.append("_method", "patch");
     formData.append("opponent_name", editableOpponentName);
-    formData.append("opponent_logo", editableLogo);
-    formData.append("date", editableDate);
-    formData.append("time", editableTime);
+    eLogo && formData.append("opponent_logo", eLogo);
+    formData.append("date", formatDateToYYYYMMDD(editableDate));
+    formData.append("time", generate24HourTime(ehour, eminute, eampm));
+    formData.append("team_id", team[0].id);
     let config = {
       headers: {
         Authorization: "Bearer " + localStorage.getItem("accessToken"),
       },
     };
     await axios
-      .post(`${BASE_URL}/admins/games/${editableId}`, formData, config)
+      .post(
+        `${BASE_URL}/admins/partial-update/games/${editableId}`,
+        formData,
+        config
+      )
       .then((response) => {
         console.log(response.data);
         fetchMatches();
@@ -242,8 +253,8 @@ const Matches = () => {
     convertTo12HourTimeEdit(match.time);
     setEditableId(match.id);
     setEditableOpponentName(match.opponentName);
-    setEditableDate(match.date);
-    setEditableTime(match.time);
+    setEditableDate(new Date(match.date));
+    setESelectedTeam(getTeamNameById(match.teamId));
   };
 
   const handlePreviousPage = () => {
@@ -262,6 +273,13 @@ const Matches = () => {
     if (event.target.files && event.target.files[0]) {
       setFileName(event.target.files[0].name);
       setLogo(event.target.files[0]);
+    }
+  };
+
+  const onImageEChange = (event: any) => {
+    if (event.target.files && event.target.files[0]) {
+      setEFileName(event.target.files[0].name);
+      setELogo(event.target.files[0]);
     }
   };
 
@@ -332,6 +350,11 @@ const Matches = () => {
         hour12 -= 12;
       }
     }
+
+    if (hour12 == 0) {
+      hour12 += 12;
+    }
+
     const formattedTime = `${hour12
       .toString()
       .padStart(2, "0")}:${minute.padStart(2, "0")} ${period}`;
@@ -370,6 +393,15 @@ const Matches = () => {
     setSelectedTeam(event.target.value);
   };
 
+  const handleESelectChange = (event: any) => {
+    setESelectedTeam(event.target.value);
+  };
+
+  const getTeamNameById = (id: number) => {
+    const team: any = teams.find((team: any) => team.id === id);
+    return team ? team.name : null;
+  };
+
   return (
     <Container>
       <Schedule>
@@ -385,7 +417,7 @@ const Matches = () => {
               ))}
             </SelectFilter>
           </Info>
-          <Info style={{ width: "120%" }}>
+          <Info style={{ width: "100%" }}>
             <h2>اسم الفريق المنافس</h2>
             <input
               value={opponentName}
@@ -472,7 +504,7 @@ const Matches = () => {
       </Schedule>
       {matches.map((match: any, idx: number) => (
         <div key={`${idx}`}>
-          {editable && match.opponentName == "Palmerias" ? (
+          {editable && editableId == match.id ? (
             <Schedule>
               <div></div>
               <Title>
@@ -495,28 +527,64 @@ const Matches = () => {
               </Title>
 
               <Content>
+                <Info>
+                  <h2>اسم الفريق</h2>
+                  <SelectFilter
+                    value={selectedETeam}
+                    onChange={handleESelectChange}
+                  >
+                    {teams.map((bus: any, index: any) => (
+                      <option key={index} value={bus.name}>
+                        {bus.name}
+                      </option>
+                    ))}
+                  </SelectFilter>
+                </Info>
                 <Info style={{ width: "120%" }}>
                   <h2>اسم الفريق المنافس</h2>
-                  <h4>{match.opponentName}</h4>
+                  <input
+                    value={editableOpponentName}
+                    onChange={(e) => setEditableOpponentName(e.target.value)}
+                  />
                 </Info>
                 <Info>
                   <h2>لوجو الفريق المنافس</h2>
-                  <UploadContainer
-                    style={{ cursor: "pointer" }}
-                    onClick={() => handleViewImage(match.opponentLogo)}
-                  >
-                    <h5 style={{ width: "100%", textAlign: "center" }}>
-                      Team Logo
-                    </h5>
-                    <Icon>
-                      <EyeIcon />
-                    </Icon>
+                  <UploadContainer>
+                    <div style={{ width: "100%" }}>
+                      <label htmlFor="file-input" style={{ width: "100%" }}>
+                        <Upload>
+                          <div style={{ width: "100%", textAlign: "center" }}>
+                            {eFileName}
+                          </div>
+                          <Icon>
+                            <UploadIcon />
+                          </Icon>
+                        </Upload>
+                      </label>
+                      <input
+                        id="file-input"
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={onImageEChange}
+                        style={{ display: "none" }}
+                      />
+                    </div>
                   </UploadContainer>
                 </Info>
                 <Info>
                   <h2>تاريخ المباراة</h2>{" "}
                   <DateContainer>
-                    <input value={formatDate(match.date)} />
+                    <style>{css}</style>
+                    <Icon>
+                      <CalendarIcon />
+                    </Icon>
+                    <DatePicker
+                      selected={editableDate}
+                      onChange={(date: any) => setEditableDate(date)}
+                      locale={ar}
+                      dateFormat="dd/MM/yyyy"
+                    />
                   </DateContainer>
                 </Info>
                 <Info style={{ width: "45%" }}>
@@ -578,6 +646,10 @@ const Matches = () => {
               </Title>
 
               <Content>
+                <Info style={{ width: "120%" }}>
+                  <h2>اسم الفريق </h2>
+                  <h4>{getTeamNameById(match.teamId)}</h4>
+                </Info>
                 <Info style={{ width: "120%" }}>
                   <h2>اسم الفريق المنافس</h2>
                   <h4>{match.opponentName}</h4>

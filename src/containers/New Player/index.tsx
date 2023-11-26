@@ -68,7 +68,7 @@ const Profile = () => {
   const [height, setHeight] = useState("");
   const [level, setLevel] = useState("");
   const [position, setPositon] = useState("");
-  const [playerRating, setPlayerRating] = useState("5");
+  //const [playerRating, setPlayerRating] = useState("5");
   const [strength, setStrength] = useState<any>(0);
   const [attack, setAttack] = useState<any>(0);
   const [defense, setDefense] = useState<any>(0);
@@ -125,13 +125,12 @@ const Profile = () => {
     formData.append("length", height);
     formData.append("level", level);
     formData.append("profile_image", image);
-    formData.append("playerRating", playerRating);
+    //formData.append("playerRating", playerRating);
     formData.append("physical", strength);
     formData.append("attack", attack);
     formData.append("defense", defense);
     formData.append("dribble", skills);
     formData.append("position", position);
-    formData.append("stars", playerRating);
 
     let config = {
       headers: {
@@ -266,7 +265,7 @@ const Profile = () => {
         </User>
       </Column>
       <Main>
-        <Rating>
+        {/* <Rating>
           <h1>تقييم اللاعب</h1>
           <div>
             <input
@@ -278,7 +277,7 @@ const Profile = () => {
               <RatingIcon />
             </Icon>
           </div>
-        </Rating>
+        </Rating> */}
         {/* Make div and make the bck img the photo and divide it */}
         <Card>
           <CardContent>

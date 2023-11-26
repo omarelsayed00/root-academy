@@ -282,3 +282,35 @@ export const EditButton = styled.button`
     opacity: 0.9;
   }
 `;
+
+export const SelectFilter = styled.select`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 4px 12px;
+  font-size: calc(0.7vw + 7px);
+  border-radius: 7px;
+  background-color: #ededed;
+  cursor: pointer;
+  border: none;
+  border-left: 0.5vw solid transparent;
+  border: 1px solid #f0f0f0;
+  border-radius: 26px;
+  border: 1px solid black;
+  border-radius: 4px;
+  width: 100%;
+  font-weight: bold;
+
+  option {
+    outline: none;
+    border: none;
+    border-radius: 2px;
+    color: black;
+    background-color: #f2f2f7;
+    cursor: pointer;
+    font-size: calc(0.7vw + 7px);
+    &:hover {
+      background-color: red !important; /* Change the background color on hover */
+    }
+  }
+`;
