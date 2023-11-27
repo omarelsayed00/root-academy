@@ -76,18 +76,7 @@ const Profile = () => {
   );
   const [trainings, setTrainings] = useState([]);
   const [team, setTeam] = useState("");
-  const [hour1, setHour1] = useState("");
-  const [minute1, setMinute1] = useState("");
-  const [ampm1, setAmpm1] = useState("م");
-  const [hour2, setHour2] = useState("");
-  const [minute2, setMinute2] = useState("");
-  const [ampm2, setAmpm2] = useState("م");
-  const [hour3, setHour3] = useState("");
-  const [minute3, setMinute3] = useState("");
-  const [ampm3, setAmpm3] = useState("م");
-  const [day1, setDay1] = useState("الأحد");
-  const [day2, setDay2] = useState("الأحد");
-  const [day3, setDay3] = useState("الأحد");
+  const [editingTeamId, setEditingTeamId] = useState("");
 
   const [eteam, setETeam] = useState("");
   const [ehour1, setEHour1] = useState("");
@@ -167,25 +156,6 @@ const Profile = () => {
     setIsLoading(false);
   };
 
-  const handleSelectChange1 = (event: any) => {
-    setDay1(event.target.value);
-  };
-  const handleSelectChange2 = (event: any) => {
-    setDay2(event.target.value);
-  };
-  const handleSelectChange3 = (event: any) => {
-    setDay3(event.target.value);
-  };
-  const handleSelectChangeE1 = (event: any) => {
-    setEDay1(event.target.value);
-  };
-  const handleSelectChangeE2 = (event: any) => {
-    setEDay2(event.target.value);
-  };
-  const handleSelectChangeE3 = (event: any) => {
-    setEDay3(event.target.value);
-  };
-
   const Select = ({ options, onChange, value }: any) => (
     <SelectWrapper>
       <SelectStyled value={value} onChange={onChange}>
@@ -235,12 +205,13 @@ const Profile = () => {
   };
 
   const addTraining = async () => {
+    console.log(schedule);
     setIsLoading(true);
     const team: any = teams.filter((team: any) => team.name === selectedTeam);
     const formData = new FormData();
     schedule.forEach((item, index) => {
       formData.append(`trainings[${index}][team_id]`, team[0].id);
-      formData.append(`trainings[${index}][date]`, item.day);
+      formData.append(`trainings[${index}][day]`, item.day);
       formData.append(
         `trainings[${index}][time]`,
         generate24HourTime(item.time.hour, item.time.minute, item.time.ampm)
@@ -267,8 +238,43 @@ const Profile = () => {
     setTeam("");
   };
 
-  const editTraining = (id: any, training: any) => {
+  const editTraining = async () => {
+    console.log(editingSchedule);
+    setIsLoading(true);
+    const formData = new FormData();
+    formData.append("_method", "put");
+    editingSchedule.forEach((item, index) => {
+      formData.append(`trainings[${index}][team_id]`, editingTeamId);
+      formData.append(`trainings[${index}][day]`, item.day);
+      formData.append(
+        `trainings[${index}][time]`,
+        generate24HourTime(item.time.hour, item.time.minute, item.time.ampm)
+      );
+    });
+
+    /// EDIT GAME STATUS
+
+    let config = {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("accessToken"),
+      },
+    };
+    await axios
+      .post(`${BASE_URL}/admins/trainings/${editingId}`, formData, config)
+      .then((response) => {
+        console.log(response.data);
+        fetchTrainings();
+        setEditingId(0);
+      })
+      .catch((error) => {
+        console.log(error.response);
+      });
+    setTeam("");
+  };
+
+  const handleEditTraining = (id: any, training: any) => {
     setEditingId(id);
+    setEditingTeamId(training.teamId);
     setEditingTraining(training);
     convertToEditingSchedule(training);
   };
@@ -399,7 +405,7 @@ const Profile = () => {
       const convertedTraining = {
         day,
         time: {
-          hour,
+          hour: hour > 12 ? hour - 12 : hour,
           minute,
           ampm: hour < 12 ? "ص" : "م", // Assuming the time is in 24-hour format
         },
@@ -558,7 +564,7 @@ const Profile = () => {
                 ))}
               </Content>
               <p></p>
-              <Button onClick={confirmEdit}>تأكيد</Button>
+              <Button onClick={editTraining}>تأكيد</Button>
             </Schedule>
           ) : (
             <Schedule style={{ padding: "0px 0px", paddingBottom: "16px" }}>
@@ -567,7 +573,9 @@ const Profile = () => {
                 <h1>{training.teamName}</h1>
                 <div>
                   <EditButton
-                    onClick={() => editTraining(training.teamId, training)}
+                    onClick={() =>
+                      handleEditTraining(training.teamId, training)
+                    }
                   >
                     <Icon>
                       <EditIcon />
@@ -580,13 +588,9 @@ const Profile = () => {
                   <Row key={index}>
                     <Info>
                       <h2>اليوم {days[index]}</h2>
-                      <Select
-                        value={item.day}
-                        options={optionsData}
-                        onChange={(e: any) =>
-                          handleInputChange(index, "day", e.target.value)
-                        }
-                      />
+                      <Time>
+                        <h4>{item.day}</h4>
+                      </Time>
                     </Info>
 
                     <Info>
