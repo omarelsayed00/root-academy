@@ -115,6 +115,12 @@ export const Time = styled.div`
     border-radius: 4px;
     padding: 4px;
   }
+  h4 {
+    font-size: 22px;
+    font-weight: 600;
+    border-radius: 4px;
+    padding: 4px;
+  }
 `;
 
 export const Button = styled.button`
