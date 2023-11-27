@@ -109,6 +109,7 @@ const Matches = () => {
         console.log(response.data);
         setLastPage(response.data.meta.last_page);
         setMatches(response.data.data.date);
+        setEditable(false);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -204,7 +205,6 @@ const Matches = () => {
       .then((response) => {
         console.log(response.data);
         fetchMatches();
-        setEditable(false);
       })
       .catch((error) => {
         console.log(error.response);

@@ -72,6 +72,7 @@ const Profile = () => {
         //console.log(response.data.data);
         setLastPage(response.data.meta.last_page);
         setNews(response.data.data);
+        setEditable(false);
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -123,7 +124,6 @@ const Profile = () => {
       .then((response) => {
         console.log(response.data);
         fetchNews();
-        setEditable(false);
       })
       .catch((error) => {
         console.log(error.response);
