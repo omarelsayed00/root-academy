@@ -59,7 +59,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [page]);
+  }, [page, searchText]);
 
   const fetchProducts = async () => {
     setIsLoading(true);
@@ -69,7 +69,7 @@ const Profile = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/products?page=${page}`, config)
+      .get(`${BASE_URL}/admins/products?page=${page}&q=${searchText}`, config)
       .then((response) => {
         console.log(response.data.data);
         setLastPage(response.data.meta.last_page);
@@ -87,7 +87,8 @@ const Profile = () => {
     setIsLoading(false);
   };
 
-  const addProduct = async () => {
+  const addProduct = async (event: any) => {
+    event.preventDefault();
     setIsLoading(true);
     const formData = new FormData();
     formData.append("name", name);
@@ -126,7 +127,7 @@ const Profile = () => {
 
   const handleChange = (value: any) => {
     setSearchText(value);
-    filterData(value);
+    //filterData(value);
   };
 
   const filterData = (value: any) => {
@@ -196,54 +197,63 @@ const Profile = () => {
   return (
     <Container>
       <Header>
-        <Content>
-          <Info style={{ width: "150%" }}>
-            <h2>اسم المنتج</h2>
-            <input value={name} onChange={(e) => setName(e.target.value)} />
-          </Info>
-          <Info style={{ width: "150%" }}>
-            <h2>SKU</h2>
-            <input
-              type="number"
-              value={sku}
-              onChange={(e) => setSku(e.target.value)}
-            />
-          </Info>
+        <form onSubmit={addProduct}>
+          <Content>
+            <Info style={{ width: "150%" }}>
+              <h2>اسم المنتج</h2>
+              <input
+                value={name}
+                required
+                onChange={(e) => setName(e.target.value)}
+              />
+            </Info>
+            <Info style={{ width: "150%" }}>
+              <h2>SKU</h2>
+              <input
+                type="number"
+                value={sku}
+                required
+                onChange={(e) => setSku(e.target.value)}
+              />
+            </Info>
 
-          <Info>
-            <h2>صور المنتج</h2>
-            <UploadContainer>
-              <div style={{ width: "100%" }}>
-                <label htmlFor="file-input" style={{ width: "100%" }}>
-                  <Upload>
-                    <div style={{ width: "100%", textAlign: "center" }}>
-                      {fileName}
-                    </div>
-                    <Icon>
-                      <UploadIcon />
-                    </Icon>
-                  </Upload>
-                </label>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept="image/*"
-                  multiple
-                  onChange={onImageChange}
-                  style={{ display: "none" }}
-                />
-              </div>
-            </UploadContainer>
-          </Info>
-          <Info>
-            <h2>السعر</h2>
-            <input
-              value={price ? price : ""}
-              onChange={(e) => setPrice(parseInt(e.target.value))}
-            />
-          </Info>
-        </Content>
-        <Button onClick={addProduct}>إضافة إلى المتجر</Button>
+            <Info>
+              <h2>صور المنتج</h2>
+              <UploadContainer>
+                <div style={{ width: "100%" }}>
+                  <label htmlFor="file-input" style={{ width: "100%" }}>
+                    <Upload>
+                      <div style={{ width: "100%", textAlign: "center" }}>
+                        {fileName}
+                      </div>
+                      <Icon>
+                        <UploadIcon />
+                      </Icon>
+                    </Upload>
+                  </label>
+                  <input
+                    id="file-input"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    required
+                    onChange={onImageChange}
+                    style={{ display: "none" }}
+                  />
+                </div>
+              </UploadContainer>
+            </Info>
+            <Info>
+              <h2>السعر</h2>
+              <input
+                required
+                value={price ? price : ""}
+                onChange={(e) => setPrice(parseInt(e.target.value))}
+              />
+            </Info>
+          </Content>
+          <Button type="submit">إضافة إلى المتجر</Button>
+        </form>
       </Header>
 
       <Input>

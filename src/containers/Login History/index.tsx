@@ -25,7 +25,7 @@ const LoginHistory = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, [page]);
+  }, [page, searchText]);
 
   const fetchUsers = async () => {
     setIsLoading(true);
@@ -35,7 +35,7 @@ const LoginHistory = () => {
       },
     };
     await axios
-      .get(`${BASE_URL}/admins/users?page=${page}`, config)
+      .get(`${BASE_URL}/admins/users?page=${page}&q=${searchText}`, config)
       .then((response) => {
         console.log(response.data);
         setLastPage(response.data.meta.last_page);
@@ -54,7 +54,7 @@ const LoginHistory = () => {
   };
   const handleChange = (value: any) => {
     setSearchText(value);
-    filterData(value);
+    //filterData(value);
   };
 
   const filterData = (value: any) => {

@@ -9,7 +9,24 @@ export const Container = styled.div`
   gap: 18px;
 `;
 
-export const Schedule = styled.div`
+export const Schedule = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px;
+  background-color: #d9d9d9;
+  border-radius: 12px;
+
+  h1 {
+    font-size: 24px;
+    line-height: 28px;
+    color: var(--primary-color);
+  }
+`;
+
+export const Schedule2 = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -73,7 +90,7 @@ export const Info = styled.div`
   }
 `;
 
-export const Button = styled.div`
+export const Button = styled.button`
   width: 300px;
   padding: 12px;
   font-size: 20px;
@@ -82,7 +99,7 @@ export const Button = styled.div`
   background: #4bad60;
   border-radius: 20px;
   cursor: pointer;
-
+  border: none;
   :hover {
     opacity: 0.9;
   }

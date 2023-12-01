@@ -10,6 +10,7 @@ import {
   EditButton,
   Info,
   Schedule,
+  Schedule2,
   Title,
 } from "./styles";
 import axios from "axios";
@@ -85,8 +86,9 @@ const Profile = () => {
     setIsLoading(false);
   };
 
-  const addNews = async () => {
+  const addNews = async (event: any) => {
     setIsLoading(true);
+    event.preventDefault();
     const formData = new FormData();
     formData.append("title", "news");
     formData.append("content", newsText);
@@ -108,8 +110,9 @@ const Profile = () => {
     setNewsText("");
   };
 
-  const editNews = async () => {
+  const editNews = async (event: any) => {
     setIsLoading(true);
+    event.preventDefault();
     const formData = new FormData();
     formData.append("_method", "put");
     //formData.append("title", "Edited Content");
@@ -187,7 +190,7 @@ const Profile = () => {
 
   return (
     <Container>
-      <Schedule>
+      <Schedule onSubmit={addNews}>
         <h1>إضافة خبر جديد</h1>
         <Content>
           <Info style={{ width: "120%" }}>
@@ -195,26 +198,30 @@ const Profile = () => {
             <textarea
               value={newsText}
               onChange={(e) => setNewsText(e.target.value)}
+              required
             />
           </Info>
         </Content>
-        <Button onClick={addNews}>نشر الخبر</Button>
+        <Button type="submit">نشر الخبر</Button>
       </Schedule>
       {news.map((obj: any, idx: number) => (
         <div key={`${idx}`}>
           {editable && editableId == obj.id ? (
-            <Schedule key={`${idx}`}>
+            <Schedule onSubmit={editNews} key={`${idx}`}>
               <Title>
                 <div></div>
                 <h1>{arabicDate(obj.createdAt)}</h1>
                 <div className="actions">
-                  <EditButton onClick={editNews}>
+                  <EditButton type="submit">
                     <p>حفظ</p>
                     <Icon>
                       <EditIcon />
                     </Icon>
                   </EditButton>
-                  <DeleteButton onClick={() => handleOpenDialog(obj.id)}>
+                  <DeleteButton
+                    type="button"
+                    onClick={() => handleOpenDialog(obj.id)}
+                  >
                     <p>حذف</p>
                     <Icon>
                       <DeleteIcon />
@@ -225,6 +232,7 @@ const Profile = () => {
               <Content>
                 <Info style={{ width: "120%" }}>
                   <textarea
+                    required
                     value={editableText}
                     onChange={(e) => setEditableText(e.target.value)}
                   />
@@ -232,18 +240,21 @@ const Profile = () => {
               </Content>
             </Schedule>
           ) : (
-            <Schedule key={`${idx}`}>
+            <Schedule2 key={`${idx}`}>
               <Title>
                 <div></div>
                 <h1>{arabicDate(obj.createdAt)}</h1>
                 <div className="actions">
-                  <EditButton onClick={() => handleEditNews(obj)}>
+                  <EditButton type="button" onClick={() => handleEditNews(obj)}>
                     <p>تعديل</p>
                     <Icon>
                       <EditIcon />
                     </Icon>
                   </EditButton>
-                  <DeleteButton onClick={() => handleOpenDialog(obj.id)}>
+                  <DeleteButton
+                    type="button"
+                    onClick={() => handleOpenDialog(obj.id)}
+                  >
                     <p>حذف</p>
                     <Icon>
                       <DeleteIcon />
@@ -256,7 +267,7 @@ const Profile = () => {
                   <h4>{obj.content}</h4>
                 </Info>{" "}
               </Content>
-            </Schedule>
+            </Schedule2>
           )}
         </div>
       ))}

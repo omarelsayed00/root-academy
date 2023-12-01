@@ -71,14 +71,15 @@ const Login = () => {
       })
       .then((response) => {
         Cookies.set("loggedIn", "true");
-        console.log(response.data);
-        console.log(response.data.data.token);
+        //console.log(response.data);
+        //console.log(response.data.data.token);
         localStorage.setItem("accessToken", response.data.data.token);
         setIsLoading(false);
         router.push("/");
       })
       .catch((error) => {
         console.log(error);
+        setErrorMessage("خطأ في البريد الاكتروني او كلمة السر");
         setIsLoading(false);
       });
   };

@@ -108,7 +108,7 @@ export const Time = styled.div`
     font-weight: 600;
     color: #0b3a2d;
   }
-  p {
+  p {                   
     font-size: 22px;
     font-weight: 600;
     background-color: #d9d9d9;
