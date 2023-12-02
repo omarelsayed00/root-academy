@@ -17,6 +17,7 @@ import {
   Upload,
   UploadContainer,
   SelectFilter,
+  Schedule2,
 } from "./styles";
 import axios from "axios";
 import AuthContext from "src/context/AuthContext";
@@ -70,14 +71,9 @@ const Matches = () => {
   const [editableMatch, setEditableMatch] = useState(false);
   const [editableOpponentName, setEditableOpponentName] = useState("");
   const [editableDate, setEditableDate] = useState<Date>(new Date());
-  const [editableTime, setEditableTime] = useState("");
-  const [editableLogo, setEditableLogo] = useState("");
   const [editableId, setEditableId] = useState("");
-  const [editableTeam, setEditableTeam] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  /*   const input1Ref = useRef(null);
-  const input2Ref = useRef(null);
-  const input3Ref = useRef(null); */
   const [selectedTeam, setSelectedTeam] = useState(".......");
   const [selectedETeam, setESelectedTeam] = useState(".......");
 
@@ -134,6 +130,8 @@ const Matches = () => {
       .then((response) => {
         console.log(response.data.data.date);
         setTeams(response.data.data.date);
+        response.data.data.date[0].name &&
+          setSelectedTeam(response.data.data.date[0].name);
 
         //setSelectedBus(response.data.results[0].bus_name);
       })
@@ -143,7 +141,12 @@ const Matches = () => {
     setIsLoading(false);
   };
 
-  const addMatch = async () => {
+  const addMatch = async (event: any) => {
+    event.preventDefault();
+    if (fileName == "") {
+      setErrorMessage("برجاء رفع لوجو الفريق المنافس");
+      return;
+    }
     setIsLoading(true);
     const team: any = teams.filter((team: any) => team.name === selectedTeam);
     const formData = new FormData();
@@ -180,7 +183,8 @@ const Matches = () => {
     setMinute("");
   };
 
-  const editMatch = async () => {
+  const editMatch = async (event: any) => {
+    event.preventDefault();
     setIsLoading(true);
     const team: any = teams.filter((team: any) => team.name === selectedETeam);
 
@@ -248,6 +252,7 @@ const Matches = () => {
   };
 
   const handleEditMatch = (match: any) => {
+    console.log("edit action");
     setEditable(true);
     setEditableMatch(match);
     convertTo12HourTimeEdit(match.time);
@@ -404,7 +409,7 @@ const Matches = () => {
 
   return (
     <Container>
-      <Schedule>
+      <Schedule onSubmit={addMatch}>
         <h1>المباراة القادمة</h1>
         <Content>
           <Info>
@@ -421,6 +426,7 @@ const Matches = () => {
             <h2>اسم الفريق المنافس</h2>
             <input
               value={opponentName}
+              required
               onChange={(e) => setOpponentName(e.target.value)}
             />
           </Info>
@@ -471,6 +477,7 @@ const Matches = () => {
                 type="number"
                 value={minute}
                 max={60}
+                required
                 onChange={(e) => {
                   const i = e.target.value;
                   if (/^\d{0,2}$/.test(i)) {
@@ -481,6 +488,7 @@ const Matches = () => {
               <h3>:</h3>
               <input
                 type="number"
+                required
                 value={hour}
                 max={12}
                 onChange={(e) => {
@@ -493,25 +501,27 @@ const Matches = () => {
               <input
                 type="text"
                 value={ampm}
+                required
                 maxLength={1}
                 onKeyDown={handleKeyDown}
                 readOnly
               />
             </TimeInput>
-          </Info>{" "}
+          </Info>
         </Content>
-        <Button onClick={addMatch}>إضافة المباراة</Button>
+        {errorMessage && <h6 style={{ color: "red" }}>{errorMessage}</h6>}
+        <Button type="submit">إضافة المباراة</Button>
       </Schedule>
       {matches.map((match: any, idx: number) => (
         <div key={`${idx}`}>
           {editable && editableId == match.id ? (
-            <Schedule>
+            <Schedule onSubmit={editMatch}>
               <div></div>
               <Title>
                 <div></div>
                 <h1>المباراة القادمة</h1>
                 <div className="actions">
-                  <EditButton onClick={editMatch}>
+                  <EditButton type="submit">
                     <p>حفظ</p>
                     <Icon>
                       <EditIcon />
@@ -544,6 +554,7 @@ const Matches = () => {
                   <h2>اسم الفريق المنافس</h2>
                   <input
                     value={editableOpponentName}
+                    required
                     onChange={(e) => setEditableOpponentName(e.target.value)}
                   />
                 </Info>
@@ -592,6 +603,7 @@ const Matches = () => {
                   <TimeInput>
                     <input
                       type="number"
+                      required
                       value={eminute}
                       max={60}
                       onChange={(e) => {
@@ -604,6 +616,7 @@ const Matches = () => {
                     <h3>:</h3>
                     <input
                       type="number"
+                      required
                       value={ehour}
                       max={12}
                       onChange={(e) => {
@@ -615,6 +628,7 @@ const Matches = () => {
                     />
                     <input
                       type="text"
+                      required
                       value={eampm}
                       maxLength={1}
                       onKeyDown={handleKeyDownEdit}
@@ -624,7 +638,7 @@ const Matches = () => {
               </Content>
             </Schedule>
           ) : (
-            <Schedule>
+            <Schedule2>
               <div></div>
               <Title>
                 <div></div>
@@ -679,7 +693,7 @@ const Matches = () => {
                   {convertTo12HourTime(match.time)}
                 </Info>{" "}
               </Content>
-            </Schedule>
+            </Schedule2>
           )}
         </div>
       ))}

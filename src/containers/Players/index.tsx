@@ -105,7 +105,7 @@ const LoginHistory = () => {
             }
           />
         </Input>
-        <AddBtn onClick={() => router.push("newPlayer")}>+ إنشاء لاعب</AddBtn>
+        <AddBtn onClick={() => router.push("new-player")}>+ إنشاء لاعب</AddBtn>
       </Header>
       <SelectTableComponent
         users={filteredList}

@@ -150,6 +150,8 @@ const Profile = () => {
       .then((response) => {
         console.log(response.data.data.date);
         setTeams(response.data.data.date);
+        response.data.data.date[0].name &&
+          setSelectedTeam(response.data.data.date[0].name);
       })
       .catch((error) => {
         console.log(error.response);
@@ -205,7 +207,8 @@ const Profile = () => {
     setOpenDialog(false);
   };
 
-  const addTraining = async () => {
+  const addTraining = async (event: any) => {
+    event.preventDefault();
     console.log(schedule);
     setIsLoading(true);
     const team: any = teams.filter((team: any) => team.name === selectedTeam);
@@ -239,7 +242,8 @@ const Profile = () => {
     setTeam("");
   };
 
-  const editTraining = async () => {
+  const editTraining = async (event: any) => {
+    event.preventDefault();
     console.log(editingSchedule);
     setIsLoading(true);
     const formData = new FormData();
@@ -418,7 +422,7 @@ const Profile = () => {
 
   return (
     <Container>
-      <Schedule>
+      <Schedule onSubmit={addTraining}>
         <Title>
           <div style={{ display: "flex", flex: "1" }}></div>
 
@@ -458,6 +462,7 @@ const Profile = () => {
                   <input
                     type="number"
                     max={60}
+                    required
                     value={item.time.minute}
                     onChange={(e) => {
                       const i = e.target.value;
@@ -469,6 +474,7 @@ const Profile = () => {
                   <h3>:</h3>
                   <input
                     type="number"
+                    required
                     max={12}
                     value={item.time.hour}
                     onChange={(e) => {
@@ -492,13 +498,13 @@ const Profile = () => {
           ))}
         </Content>
         <br />
-        <Button onClick={addTraining}>إضافة فريق</Button>
+        <Button type="submit">إضافة تمرين</Button>
       </Schedule>
 
       {trainings.map((training: any, idx: number) => (
         <Schedule key={`${idx}`}>
           {editingId == training.teamId ? (
-            <Schedule>
+            <Schedule onSubmit={editTraining}>
               <Title>
                 <h1 style={{ width: "100%" }}>{training.teamName}</h1>
               </Title>
@@ -521,6 +527,7 @@ const Profile = () => {
                       <TimeInput>
                         <input
                           type="number"
+                          required
                           max={60}
                           value={item.time.minute}
                           onChange={(e) => {
@@ -537,6 +544,7 @@ const Profile = () => {
                         <h3>:</h3>
                         <input
                           type="number"
+                          required
                           max={12}
                           value={item.time.hour}
                           onChange={(e) => {
@@ -564,7 +572,7 @@ const Profile = () => {
                 ))}
               </Content>
               <p></p>
-              <Button onClick={editTraining}>تأكيد</Button>
+              <Button type="submit">تأكيد</Button>
             </Schedule>
           ) : (
             <Schedule style={{ padding: "0px 0px", paddingBottom: "16px" }}>

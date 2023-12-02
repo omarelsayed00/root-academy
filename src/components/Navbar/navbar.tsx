@@ -27,8 +27,6 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
   const router = useRouter();
   const [openDialog, setOpenDialog] = useState(false);
 
-  const isAdmin = Cookies.get("isAdmin");
-
   const isHomeActiveLink = (route: string) => router.pathname === `${route}`;
 
   const isActiveLink = (route: string) => router.pathname.includes(`${route}`);
@@ -85,34 +83,6 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
             </Link>
           ))}
 
-          {isAdmin && (
-            <SelectDropdown
-              data={[
-                {
-                  name: "الاعضاء",
-                  path: "/members",
-                },
-                {
-                  name: "المبادرات المقترحة",
-                  path: "/suggestedInitiatives",
-                },
-                {
-                  name: "الاجتماعات المقترحة",
-                  path: "/suggestedMeetings",
-                },
-                {
-                  name: "المهام المقترحة",
-                  path: "/suggestedTasks",
-                },
-              ]}
-              settings={{
-                textColor: "black",
-                arrowColor: "orange",
-                transparent: true,
-              }}
-            />
-          )}
-
           <Button onClick={handleOpenDialog} style={{ color: "white" }}>
             <Icon>
               <LogoutIcon />
@@ -146,37 +116,6 @@ const Navbar /* : FC<{ onClose?: () => void }> */ = (props: any) => {
 
 export default Navbar;
 
-export const adminLinks = [
-  {
-    name: "سجل الدخول",
-    path: "/",
-  },
-  {
-    name: "قائمة اللاعبين",
-    path: "/players",
-  },
-  {
-    name: "مواعيد التمرين",
-    path: "/trainingSchedule",
-  },
-  {
-    name: "المباريات القادمة",
-    path: "/upcomingMatches",
-  },
-  {
-    name: "اخبار الاكاديمية",
-    path: "/news",
-  },
-  {
-    name: "تعديل المتجر",
-    path: "/store",
-  },
-  {
-    name: "قواعد الاكاديمية",
-    path: "/rules",
-  },
-];
-
 export const links = [
   {
     name: "قائمة اللاعبين",
@@ -184,11 +123,11 @@ export const links = [
   },
   {
     name: "مواعيد التمرين",
-    path: "/trainingSchedule",
+    path: "/trainings",
   },
   {
     name: "المباريات القادمة",
-    path: "/upcomingMatches",
+    path: "/matches",
   },
   {
     name: "اخبار الاكاديمية",
@@ -211,3 +150,34 @@ const dialogStyles2 = {
   gap: "8px",
   padding: "12px 76px",
 };
+
+export const adminLinks = [
+  {
+    name: "سجل الدخول",
+    path: "/",
+  },
+  {
+    name: "قائمة اللاعبين",
+    path: "/players",
+  },
+  {
+    name: "مواعيد التمرين",
+    path: "/trainings",
+  },
+  {
+    name: "المباريات القادمة",
+    path: "/matches",
+  },
+  {
+    name: "اخبار الاكاديمية",
+    path: "/news",
+  },
+  {
+    name: "تعديل المتجر",
+    path: "/store",
+  },
+  {
+    name: "قواعد الاكاديمية",
+    path: "/rules",
+  },
+];

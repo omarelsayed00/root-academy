@@ -10,7 +10,7 @@ export const Container = styled.div`
   gap: 18px;
 `;
 
-export const Schedule = styled.div`
+export const Schedule = styled.form`
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -108,7 +108,7 @@ export const Time = styled.div`
     font-weight: 600;
     color: #0b3a2d;
   }
-  p {                   
+  p {
     font-size: 22px;
     font-weight: 600;
     background-color: #d9d9d9;
@@ -131,8 +131,8 @@ export const Button = styled.button`
   color: white;
   background: var(--primary-color);
   border-radius: 20px;
-  cursor: pointer;\
-  border:none;
+  cursor: pointer;
+  border: none;
 
   :hover {
     opacity: 0.9;
@@ -147,8 +147,8 @@ export const AddButton = styled.button`
   color: white;
   background: var(--primary-color);
   border-radius: 20px;
-  cursor: pointer;\
-  border:none;
+  cursor: pointer;
+  border: none;
   display: inline-block;
   white-space: nowrap;
   :hover {
