@@ -48,7 +48,7 @@ export default class MyDocument extends Document {
             type="font/ttf"
             crossOrigin="anonymous"
           />
-          <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/>
+         {/*  <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests"/> */}
 
         </Head>
         <body>
